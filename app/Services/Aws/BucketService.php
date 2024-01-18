@@ -4,9 +4,10 @@ declare(strict_types= 1);
 
 namespace App\Services\Aws;
 
+use Exception;
 use Aws\S3\S3Client;
 use App\Contracts\Aws\BucketServiceInterface;
-use Exception;
+use App\Exceptions\Aws\BucketServiceException;
 
 class BucketService implements BucketServiceInterface
 {
@@ -24,7 +25,7 @@ class BucketService implements BucketServiceInterface
                 'Bucket' => $name,
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException(['Error' => $e->getMessage()]);
+            throw new BucketServiceException([$e->getMessage()]);
         }
 
         return [
@@ -38,9 +39,9 @@ class BucketService implements BucketServiceInterface
         try {
             $result = $this->s3Client->listBuckets();
         } catch (Exception $e) {
-            throw new BucketServiceException(['error' => $e->getMessage()]);
+            throw new BucketServiceException([$e->getMessage()]);
         }
-        return $result['Buckets'] ?? throw new BucketServiceException(['error' => 'Cannot load buckets']);
+        return $result['Buckets'] ?? throw new BucketServiceException(['Cannot load buckets']);
     }
 
     public function delete(string $name): array
@@ -51,7 +52,7 @@ class BucketService implements BucketServiceInterface
                 'Bucket' => $name,
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException(['error'=> $e->getMessage()]);
+            throw new BucketServiceException([$e->getMessage()]);
         }
 
         return [
@@ -80,11 +81,11 @@ class BucketService implements BucketServiceInterface
                     'Bucket' => $name,
                 ]);
                 if (count($check) <= 0) {
-                    throw new BucketServiceException(['error'=> "Bucket wasn't empty."]);
+                    throw new BucketServiceException(["Bucket wasn't empty."]);
                 }
             
         } catch (Exception $e) {
-            throw new BucketServiceException(['error'=> $e->getMessage()]);
+            throw new BucketServiceException([$e->getMessage()]);
         }
 
         return ['deleted' => $objects];
@@ -100,7 +101,7 @@ class BucketService implements BucketServiceInterface
                 'SourceFile' => $filePath
             ]);
             } catch (Exception $e) {
-                throw new BucketServiceException(['error'=> $e->getMessage()]);
+                throw new (['error'=> $e->getMessage()]);
             }
 
             return [
@@ -115,10 +116,10 @@ class BucketService implements BucketServiceInterface
                 'Bucket' => $bucketName,
             ]);
             } catch (Exception $e) {
-                throw new BucketServiceException(['error'=> $e->getMessage()]);
+                throw new BucketServiceException([$e->getMessage()]);
             }
 
-            return (array) $result['Contents'] ?? throw new BucketServiceException(['error'=> 'Cannot list content of buckets']);
+            return (array) $result['Contents'] ?? throw new BucketServiceException(['Cannot list content of buckets']);
     }
 
     public function load(string $bucketName, string $fileName): string
@@ -129,7 +130,7 @@ class BucketService implements BucketServiceInterface
                 'Key' => $fileName,
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException(['error'=> $e->getMessage()]);
+            throw new BucketServiceException([$e->getMessage()]);
         }
 
         return (string) $file->get('Body');

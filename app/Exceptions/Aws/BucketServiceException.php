@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Aws;
+namespace App\Exceptions\Aws;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Exceptions\HttpResponseException;

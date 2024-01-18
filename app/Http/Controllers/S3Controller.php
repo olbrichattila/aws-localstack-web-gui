@@ -11,48 +11,53 @@ use App\Http\Requests\FileUploadRequest;
 
 class S3Controller extends Controller
 {
-    public function buckets(BucketService $bucketService): array
+
+    public function __construct(private readonly BucketService $bucketService)
     {
-        return $bucketService->buckets();
     }
 
-    public function create(S3Request $request, BucketService $bucketService): array
+    public function buckets(): array
     {
-        return $bucketService->create(
+        return $this->bucketService->buckets();
+    }
+
+    public function create(S3Request $request): array
+    {
+        return $this->bucketService->create(
             $request->validated()['bucketName']
         );
     }
 
-    public function delete(S3Request $request, BucketService $bucketService): array
+    public function delete(S3Request $request): array
     {
-        return $bucketService->delete(
+        return $this->bucketService->delete(
             $request->validated()['bucketName']
         );
     }
 
-    public function deleteMultiple(S3Request $request, BucketService $bucketService): array
+    public function deleteMultiple(S3Request $request): array
     {
-        return $bucketService->deleteMultiple(
+        return $this->bucketService->deleteMultiple(
             $request->validated()['bucketName']
         );
     }
 
-    public function upload(S3UploadRequest $request, BucketService $bucketService): array
+    public function upload(S3UploadRequest $request): array
     {
-        return $bucketService->upload(
+        return $this->bucketService->upload(
             $request->validated()['bucketName'],
             $request->validated()['fileName'],
         );
     }
 
-    public function list(string $bucketName, BucketService $bucketService): array
+    public function list(string $bucketName): array
     {
-        return $bucketService->list($bucketName);
+        return $this->bucketService->list($bucketName);
     }
 
-    public function load(S3UploadRequest $request, BucketService $bucketService): string
+    public function load(S3UploadRequest $request): string
     {
-        return $bucketService->load(
+        return $this->bucketService->load(
             $request->validated()['bucketName'],
             $request->validated()['fileName'],
         );
