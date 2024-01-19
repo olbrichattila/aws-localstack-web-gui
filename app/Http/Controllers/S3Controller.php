@@ -5,13 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\S3Request;
 use App\Services\Aws\BucketService;
 use Illuminate\Support\Facades\File;
-use SebastianBergmann\Type\VoidType;
 use App\Http\Requests\S3UploadRequest;
 use App\Http\Requests\FileUploadRequest;
 
 class S3Controller extends Controller
 {
-
     public function __construct(private readonly BucketService $bucketService)
     {
     }
