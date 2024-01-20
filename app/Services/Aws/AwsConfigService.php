@@ -14,8 +14,8 @@ class AwsConfigService implements AwsConfigServiceInterface
         return [
             'version' => 'latest',
             'region' => 'us-east-1', // Set your desired AWS region
-            // 'endpoint' => 'http://localhost:4566', // LocalStack endpoint
-            'endpoint' => 'http://localstack-container:4566', // LocalStack endpoint
+            'endpoint' => 'http://localhost:4566', // LocalStack endpoint
+            // 'endpoint' => 'http://localstack-container:4566', // LocalStack endpoint
             'use_path_style_endpoint' => true,
             'credentials' => [
                 'key' => 'your-access-key-id',
