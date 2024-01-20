@@ -2,9 +2,11 @@ const headers = {
     'Content-Type': 'application/json',
 };
 
+const host  = process.env.REACT_APP_API_URL;
+
 const load = async () => {
     try {
-        const response = await fetch('http://localhost:8000/api/sqs/attributes');
+        const response = await fetch(`${host}/api/sqs/attributes`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -31,7 +33,7 @@ const save = async (queueName) => {
     };
 
     try {
-        const response = await fetch('http://localhost:8000/api/sqs', options);
+        const response = await fetch(`${host}/api/sqs`, options);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -57,7 +59,7 @@ const del = async (queueUrl) => {
     };
 
     try {
-        const response = await fetch('http://localhost:8000/api/sqs', options);
+        const response = await fetch(`${host}/api/sqs`, options);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -82,7 +84,7 @@ const purge = async (queueUrl) => {
     };
 
     try {
-        const response = await fetch('http://localhost:8000/api/sqs/purge', options);
+        const response = await fetch(`${host}/api/sqs/purge`, options);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -107,7 +109,7 @@ const refresh = async (queueUrl) => {
     };
 
     try {
-        const response = await fetch('http://localhost:8000/api/sqs/attributes', options);
+        const response = await fetch(`${host}/api/sqs/attributes`, options);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }

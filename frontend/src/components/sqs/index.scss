@@ -1,10 +1,10 @@
 .sqsTable {
     width: 100%;
-    // border-collapse: collapse;
     border-spacing: 0 12px;
     th {
         background-color: #f2f2f2;
         color: black;
+        font-size: 14px;
         &.narrow {
           width: 120px;
         }
@@ -13,15 +13,12 @@
     tr {
       padding: 8px;
       margin: 6px;
-      background-color: #2f3136;
-    
-  
+      background-color: #E9E9E9;
+      
       td {
-        border: 1px solid #2a2e38;
+        border: 1px solid white;
         padding: 4px;
         margin: 6px 0;
-
-        
       }
     }
 }

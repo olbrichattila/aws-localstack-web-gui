@@ -2,16 +2,34 @@ import React, { useState, useEffect } from 'react';
 import './index.scss';
 import Button from '../button';
 import { load, save, del, purge, refresh } from '../../api/sqs'
+import LoadingSpinner from '../../icons/loadingSpinner';
 
 const Sqs = () => {
   const [data, setData] = useState([]);
   const [queueName, setQueueName] = useState('');
+  const [watch, setWatch] = useState(-1);
 
   const refreshQueue = (attributes, idx) => {
     setData(
       [...data.slice(0, idx), {...data[idx], attributes}, ...data.slice(idx + 1)]
     );
   }
+
+  useEffect(() => {
+    const updateTimer = () => {
+      if (watch >= 0) {
+        refresh(data[watch].url).then(r => refreshQueue(r, watch))
+      }
+      console.log('x');
+    };
+
+    const timerId = setInterval(updateTimer, 2000);
+
+    return () => {
+      clearInterval(timerId);
+      
+    };
+  }, [watch]);
 
   useEffect(() => {
     load().then(r => setData(r));
@@ -41,6 +59,7 @@ const Sqs = () => {
             <th className="narrow">Delete</th>
             <th className="narrow">Purge</th>
             <th className="narrow">Refresh</th>
+            <th className="narrow"></th>
           </tr>
         </thead>
         <tbody>
@@ -53,6 +72,9 @@ const Sqs = () => {
             <td>{<Button onClick={() => del(data[idx].url).then(() => load().then(r => setData(r)))} label="Delete" />}</td>
             <td>{<Button onClick={() => purge(data[idx].url).then(() => load().then(r => setData(r)))} label="Purge" />}</td>
             <td>{<Button onClick={() => refresh(data[idx].url).then(r => refreshQueue(r, idx))} label="Refresh" />}</td>
+            <td>
+              {watch !== idx ? <Button label="Watch" onClick={() => setWatch(idx)}/> : <LoadingSpinner onClick={() => setWatch(-1)} />}
+            </td>
           </tr>
         ))}
         </tbody>
