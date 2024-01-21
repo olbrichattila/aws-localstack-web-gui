@@ -136,12 +136,12 @@ class SqsService implements SqsServiceInterface
         return (array) $result;
     }
 
-    public function receiveMessage(string $queueUrl): array
+    public function receiveMessage(string $queueUrl, int $maxNumberOfMessages): array
     {
         try {
             $result = $this->SqsClient->receiveMessage([
                 'QueueUrl' => $queueUrl,
-                'MaxNumberOfMessages' => 5, // @TODO may want to move to request
+                'MaxNumberOfMessages' => $maxNumberOfMessages,
                 'VisibilityTimeout' =>  15, // @TODO may want to move to request
                 'AttributeNames' => ['All']
             ]);

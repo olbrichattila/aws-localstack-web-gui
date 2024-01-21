@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import './sqs.scss';
-import Button from '../components/button';
 import { load, save, del, purge, refresh } from '../api/sqs'
-import LoadingSpinner from '../icons/loadingSpinner';
 import SaveBox from '../components/savebox';
+import SendSqsMessageModal from '../components/sendSqsMessageModal';
+import SqsTable from '../components/sqsTable';
+import FilterBox from '../components/filterBox';
+import Modal from '../components/modal';
+import Button from '../components/button';
+import Spacer from '../components/spacer';
+import ReadSqsQueue from '../components/readSqsQueue';
 
 const SqsPage = () => {
     const [data, setData] = useState([]);
     const [watch, setWatch] = useState(-1);
+    const [sendQueue, setSendQueue] = useState(-1);
+    const [filter, setFilter] = useState('');
+    const [newQueueModalOpen, setNewQueueModalOpen] = useState(false);
+    const [sqsReadId, setSqsReadId] = useState(-1);
 
     const refreshQueue = (attributes, idx) => {
         setData(
@@ -30,46 +39,65 @@ const SqsPage = () => {
         };
     }, [watch]);
 
+
     useEffect(() => {
         load().then(r => setData(r));
     }, []);
 
+    useEffect(() => {
+        if (newQueueModalOpen) {
+            setNewQueueModalOpen(false);
+        }
+    }, [data]);
+
     return (
         <div>
-            <SaveBox
-                title='New SQS queue name:'
-                onSubmit={queueName => save(queueName).then(() => load().then(r => setData(r)))}
+            <SendSqsMessageModal
+                idx={sendQueue}
+                queueUrl={sendQueue >= 0 ? data[sendQueue].url : ''}
+                isOpen={sendQueue >= 0}
+                onClose={() => setSendQueue(-1)}
+                onSent={idx => {
+                    refresh(data[idx].url).then(r => refreshQueue(r, sendQueue))
+                    setSendQueue(-1)
+                }}
             />
-            <table className='sqsTable'>
-                <thead>
-                    <tr>
-                        <th>Queue Name</th>
-                        <th className="narrow">Messages</th>
-                        <th className="narrow">Messages NotVisible</th>
-                        <th className="narrow">Messages Delayed</th>
-                        <th colSpan={4}></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((item, idx) => (
-                        <tr className="sqsRow" key={idx}>
-                            <td>{item.url.split('/').pop()}</td>
-                            <td>{item.attributes.ApproximateNumberOfMessages}</td>
-                            <td>{item.attributes.ApproximateNumberOfMessagesNotVisible}</td>
-                            <td>{item.attributes.ApproximateNumberOfMessagesDelayed}</td>
-                            <td className="narrow">{<Button onClick={() => {
-                                del(data[idx].url).then(() => load().then(r => setData(r)));
-                                setWatch(-1);
-                            }} label="Delete" />}</td>
-                            <td className="narrow">{<Button onClick={() => purge(data[idx].url).then(() => load().then(r => setData(r)))} label="Purge" />}</td>
-                            <td className="narrow">{<Button onClick={() => refresh(data[idx].url).then(r => refreshQueue(r, idx))} label="Refresh" />}</td>
-                            <td className="narrow">
-                                {watch !== idx ? <Button label="Watch" onClick={() => setWatch(idx)} /> : <LoadingSpinner onClick={() => setWatch(-1)} />}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <Modal
+                isOpen={newQueueModalOpen}
+                onClose={() => setNewQueueModalOpen()}
+            >
+                <SaveBox
+                    title='New SQS queue name:'
+                    onSubmit={queueName => save(queueName).then(() => load().then(r => setData(r)))}
+                />
+            </Modal>
+            <ReadSqsQueue isOpen={sqsReadId >= 0} onClose={() => setSqsReadId(-1)} queueUrl={sqsReadId >= 0 ? data[sqsReadId].url : ''} />
+
+            <Spacer />
+            <Button label="Create new queue" margin={6} onClick={() => {
+                setNewQueueModalOpen(true);
+                if (watch >= 0) {
+                    setWatch(-1);
+                }
+            }} />
+
+            <FilterBox onSubmit={text => setFilter(text)} />
+            <SqsTable
+                data={data}
+                filter={filter}
+                watchIdx={watch}
+                onDelete={idx => {
+                    del(data[idx].url).then(() => load().then(r => setData(r)));
+                    setWatch(-1);
+                }
+                }
+
+                onPurge={idx => purge(data[idx].url).then(() => load().then(r => setData(r)))}
+                onRefresh={idx => refresh(data[idx].url).then(r => refreshQueue(r, idx))}
+                onWatchChange={idx => setWatch(idx)}
+                onSendMessage={idx => setSendQueue(idx)}
+                onReadMessage={idx => setSqsReadId(idx)}
+            />
         </div>
     );
 };

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SqsReceiveMessageRequest;
 use App\Services\Aws\SqsService;
 use App\Http\Requests\SqsUrlRequest;
 use App\Http\Requests\SqsCreateRequest;
@@ -63,10 +64,11 @@ class SqsController extends Controller
         );
     }
 
-    public function receiveMessage(SqsUrlRequest $request): array
+    public function receiveMessage(SqsReceiveMessageRequest $request): array
     {
         return $this->sqsService->receiveMessage(
             $request->validated()['queueUrl'],
+            $request->validated()['maxNumberOfMessages'],
         );
     }
 

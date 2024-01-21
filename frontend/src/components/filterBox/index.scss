@@ -1,0 +1,12 @@
+.filterBox {
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-between;
+    border: 1px solid #999;
+    margin: 12px 0;
+    padding: 6px;
+
+    input {
+        flex-grow: 1;
+    }
+}

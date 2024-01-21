@@ -1,0 +1,26 @@
+.sortBox {
+  user-select: none;
+  cursor: pointer;
+  position: relative;
+  padding: 0 24px 0 0;
+
+  &.desc:after,
+  &.asc:after {
+    content: "";
+    position: absolute;
+    top: calc(50% - 6px);
+    right: 3px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+  }
+
+  &.desc:after {
+    border-bottom: 12px solid #fff;
+  }
+
+  &.asc:after {
+    border-top: 12px solid #fff;
+  }
+}

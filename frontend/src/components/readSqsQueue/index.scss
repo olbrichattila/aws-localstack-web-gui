@@ -1,0 +1,23 @@
+.readSqsQueueModal {
+    margin: 14px 3px;
+    label {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .receiveMessageWrapper {
+        display: flex;
+        flex-direction: column;
+        height: 200px;
+        max-height: 200px;
+        overflow: auto;
+        text-align: left;
+        width: 350px;
+    
+        div {
+            padding: 3px;
+            border-bottom: 1px solid black;
+        }
+    }
+    
+}

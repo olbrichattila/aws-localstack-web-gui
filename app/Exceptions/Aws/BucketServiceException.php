@@ -4,8 +4,9 @@ namespace App\Exceptions\Aws;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Throwable;
 
-class BucketServiceException extends HttpResponseException
+class BucketServiceException extends HttpResponseException implements Throwable
 {
     public function __construct(array $errors)
     {

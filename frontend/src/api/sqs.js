@@ -122,4 +122,59 @@ const refresh = async (queueUrl) => {
     }
 }
 
-export { save, load, del, purge, refresh };
+const sendMessage = async (queueUrl, delaySeconds, messageBody) => {
+    const options = {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(
+            {
+                queueUrl,
+                delaySeconds,
+                messageBody
+            }
+        )
+    };
+
+    try {
+        const response = await fetch(`${host}/api/sqs/message/send`, options);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error.message);
+        throw error;
+    }
+}
+
+const receiveMessage = async (queueUrl, maxNumberOfMessages) => {
+    const options = {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(
+            {
+                queueUrl,
+                maxNumberOfMessages,
+            }
+        )
+    };
+
+    try {
+        const response = await fetch(`${host}/api/sqs/message/receive`, options);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error.message);
+        throw error;
+    }
+}
+
+
+
+export { save, load, del, purge, refresh, sendMessage, receiveMessage };

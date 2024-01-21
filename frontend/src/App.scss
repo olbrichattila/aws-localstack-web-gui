@@ -87,9 +87,15 @@ body {
   }
 }
 
-input {
-  padding: 3px;
+input, textarea {
+  padding: 6px;
   margin: 0 6px;
+  border: 1px solid #545b64;
+  border-radius: 3px;
+}
+
+textarea {
+  height: 100px;
 }
 
 label {
