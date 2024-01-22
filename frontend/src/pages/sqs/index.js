@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import './sqs.scss';
-import { load, save, del, purge, refresh } from '../api/sqs'
-import SaveBox from '../components/savebox';
-import SendSqsMessageModal from '../components/sendSqsMessageModal';
-import SqsTable from '../components/sqsTable';
-import FilterBox from '../components/filterBox';
-import Modal from '../components/modal';
-import Button from '../components/button';
-import Spacer from '../components/spacer';
-import ReadSqsQueue from '../components/readSqsQueue';
+import { load, save, del, purge, refresh } from '../../api/sqs'
+import SaveBox from '../../components/savebox';
+import SendSqsMessageModal from '../../components/sendSqsMessageModal';
+import SqsTable from '../../components/sqsTable';
+import FilterBox from '../../components/filterBox';
+import Modal from '../../components/modal';
+import Button from '../../components/button';
+import Spacer from '../../components/spacer';
+import ReadSqsQueue from '../../components/readSqsQueue';
+import './index.scss';
 
 const SqsPage = () => {
     const [data, setData] = useState([]);
@@ -51,7 +51,7 @@ const SqsPage = () => {
     }, [data]);
 
     return (
-        <div>
+        <>
             <SendSqsMessageModal
                 idx={sendQueue}
                 queueUrl={sendQueue >= 0 ? data[sendQueue].url : ''}
@@ -72,8 +72,7 @@ const SqsPage = () => {
                 />
             </Modal>
             <ReadSqsQueue isOpen={sqsReadId >= 0} onClose={() => setSqsReadId(-1)} queueUrl={sqsReadId >= 0 ? data[sqsReadId].url : ''} />
-
-            <Spacer />
+            
             <Button label="Create new queue" margin={6} onClick={() => {
                 setNewQueueModalOpen(true);
                 if (watch >= 0) {
@@ -82,6 +81,7 @@ const SqsPage = () => {
             }} />
 
             <FilterBox onSubmit={text => setFilter(text)} />
+            <Spacer />
             <SqsTable
                 data={data}
                 filter={filter}
@@ -98,7 +98,7 @@ const SqsPage = () => {
                 onSendMessage={idx => setSendQueue(idx)}
                 onReadMessage={idx => setSqsReadId(idx)}
             />
-        </div>
+        </>
     );
 };
 

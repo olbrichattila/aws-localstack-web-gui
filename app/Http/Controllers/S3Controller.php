@@ -70,4 +70,12 @@ class S3Controller extends Controller
         File::copy($tmpFile, $storagePath);
         File::delete($tmpFile);
     }
+
+    public function deleteObject(S3UploadRequest $request): array
+    {
+        return $this->bucketService->deleteObject(
+            $request->validated()['bucketName'],
+            $request->validated()['fileName'],
+        );
+    }
 }

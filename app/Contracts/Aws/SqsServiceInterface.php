@@ -15,6 +15,5 @@ interface SqsServiceInterface
     public function receiveMessage(string $queueUrl, int $maxNumberOfMessages): array;
     public function receiveAndDeleteMessage(string $queueUrl): array;
     public function deleteMessage(string $queueUrl, string $receiptHandle): array;
-    // @todo add deleteMessage, pugeQueue for now
-}
+ }
 

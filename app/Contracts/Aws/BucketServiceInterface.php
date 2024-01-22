@@ -11,4 +11,5 @@ interface BucketServiceInterface
     public function upload(string $bucketName, string $fileName): array;
     public function list(string $bucketName): array;
     public function load(string $bucketName, string $fileName): string;
+    public function deleteObject(string $bucketName, string $fileName): array;
 }

@@ -1,0 +1,11 @@
+.fileUploadModal {
+    margin: 6px 0;
+    padding: 6px;
+    .fileUploadError {
+        border: 1px solid darkred;
+        color: darkred;
+        padding: 6px;
+        margin: 6px;
+        border-radius: 6px;
+    }
+}

@@ -27,6 +27,7 @@ Route::delete('/s3/buckets/multiple', [S3Controller::class, 'deleteMultiple']);
 Route::post('/s3/buckets/upload', [S3Controller::class, 'upload']);
 Route::get('/s3/list/{bucketName}', [S3Controller::class, 'list']);
 Route::post('/s3/load', [S3Controller::class, 'load']);
+Route::delete('/s3/buckets/delete/object', [S3Controller::class, 'deleteObject']);
 Route::post('/s3/file_upload', [S3Controller::class, 'fileUpload'])->name('file_upload');
 
 Route::get('/sqs', [SqsController::class, 'list']);

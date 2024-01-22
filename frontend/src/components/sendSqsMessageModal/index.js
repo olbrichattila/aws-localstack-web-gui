@@ -41,11 +41,11 @@ const SendSqsMessageModal = ({
     }
 
     useEffect(() => {
-            const timeoutId = setTimeout(() => {
-                if (errors.length > 0) {
+        const timeoutId = setTimeout(() => {
+            if (errors.length > 0) {
                 setErrors([]);
-                }
-            }, 2000);
+            }
+        }, 2000);
         return () => {
             clearTimeout(timeoutId);
         };

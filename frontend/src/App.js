@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.scss';
 import SqsPage from './pages/sqs';
+import S3Page from './pages/s3';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import SqsIcon from './icons/sqs';
@@ -10,7 +11,7 @@ import S3Icon from './icons/s3';
 import MenuOption from './components/menuoption';
 
 function App() {
-  const [selectedMenu, setSelectedMenu] = useState(2);
+  const [selectedMenu, setSelectedMenu] = useState(1);
 
   return (
     <div className="App">
@@ -46,6 +47,7 @@ function App() {
             {selectedMenu === 4 && <><DynamoDbIcon /><span>Dynamo DB</span></>}
           </div>
           <div className="pageContainer">
+            {selectedMenu === 1 && <S3Page />}
             {selectedMenu === 2 && <SqsPage />}
           </div>
         </div>

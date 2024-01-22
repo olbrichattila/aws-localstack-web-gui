@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types= 1);
+declare(strict_types=1);
 
 namespace App\Services\Aws;
 
@@ -13,7 +13,7 @@ class BucketService implements BucketServiceInterface
 {
     private S3Client $s3Client;
 
-    public function __construct(AwsConfigService $config) 
+    public function __construct(AwsConfigService $config)
     {
         $this->s3Client = new S3Client($config->get());
     }
@@ -71,19 +71,19 @@ class BucketService implements BucketServiceInterface
                     'Key' => $content['Key'],
                 ];
             }
-                $this->s3Client->deleteObjects([
-                    'Bucket' => $name,
-                    'Delete' => [
-                        'Objects' => $objects,
-                    ],
-                ]);
-                $check = $this->s3Client->listObjects([
-                    'Bucket' => $name,
-                ]);
-                if (count($check) <= 0) {
-                    throw new BucketServiceException(["Bucket wasn't empty."]);
-                }
-            
+            $this->s3Client->deleteObjects([
+                'Bucket' => $name,
+                'Delete' => [
+                    'Objects' => $objects,
+                ],
+            ]);
+            $check = $this->s3Client->listObjects([
+                'Bucket' => $name,
+            ]);
+            if (count($check) <= 0) {
+                throw new BucketServiceException(["Bucket wasn't empty."]);
+            }
+
         } catch (Exception $e) {
             throw new BucketServiceException([$e->getMessage()]);
         }
@@ -100,13 +100,13 @@ class BucketService implements BucketServiceInterface
                 'Key' => basename($fileName),
                 'SourceFile' => $filePath
             ]);
-            } catch (Exception $e) {
-                throw new (['error'=> $e->getMessage()]);
-            }
+        } catch (Exception $e) {
+            throw new (['error' => $e->getMessage()]);
+        }
 
-            return [
-                'statusCode' => $result['@metadata']['statusCode'] ?? null,
-            ];
+        return [
+            'statusCode' => $result['@metadata']['statusCode'] ?? null,
+        ];
     }
 
     public function list(string $bucketName): array
@@ -115,11 +115,11 @@ class BucketService implements BucketServiceInterface
             $result = $this->s3Client->listObjects([
                 'Bucket' => $bucketName,
             ]);
-            } catch (Exception $e) {
-                throw new BucketServiceException([$e->getMessage()]);
-            }
+        } catch (Exception $e) {
+            throw new BucketServiceException([$e->getMessage()]);
+        }
 
-            return (array) $result['Contents'] ?? throw new BucketServiceException(['Cannot list content of buckets']);
+        return (array) $result['Contents'] ?? throw new BucketServiceException(['Cannot list content of buckets']);
     }
 
     public function load(string $bucketName, string $fileName): string
@@ -134,5 +134,19 @@ class BucketService implements BucketServiceInterface
         }
 
         return (string) $file->get('Body');
+    }
+
+    public function deleteObject(string $bucketName, string $fileName): array
+    {
+        try {
+            $result = $this->s3Client->deleteObject(array(
+                'Bucket' => $bucketName,
+                'Key'    => $fileName
+            ));
+        } catch (Exception $e) {
+            throw new BucketServiceException([$e->getMessage()]);
+        }
+
+        return (array) $result;
     }
 }
