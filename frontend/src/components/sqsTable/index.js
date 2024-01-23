@@ -13,7 +13,7 @@ const initialSortInfo = {
 const SqsTable = ({
     data = [],
     filter = '',
-    watchIdx = -1,
+    watchUrl = '',
     onWatchChange = () => null,
     onDelete = () => null,
     onPurge = () => null,
@@ -21,21 +21,21 @@ const SqsTable = ({
     onSendMessage = () => null,
     onReadMessage = () => null,
 }) => {
-    const [watch, setWatch] = useState(watchIdx);
+    const [watchUrlState, setWatchUrlState] = useState(watchUrl);
     const [sortInfo, setSortInfo] = useState(initialSortInfo);
     const [sorted, setSorted] = useState([]);
 
     const sortClick = (field) => {
         const asc = sortInfo.field === field ? !sortInfo.asc : true;
         setSortInfo({ field, asc })
-        if (watch >= 0) {
-            setWatch(-1);
+        if (watchUrlState !== '') {
+            setWatchUrlState('');
         }
     }
 
-    const watchChange = (idx) => {
-        setWatch(idx);
-        onWatchChange(idx)
+    const watchChange = (url) => {
+        setWatchUrlState(url);
+        onWatchChange(url)
     }
 
     useEffect(() => {
@@ -44,15 +44,15 @@ const SqsTable = ({
 
 
     useEffect(() => {
-        if (watch >= 0) {
-            setWatch(-1);
+        if (watchUrlState !== '') {
+            setWatchUrlState('');
         }
     }, [filter])
 
     useEffect(() => {
-        setWatch(watchIdx);
-    }, [watchIdx])
-    
+        setWatchUrlState(watchUrl);
+    }, [watchUrl])
+   
     return (
         <table className='sqsTable'>
             <thead>
@@ -93,7 +93,7 @@ const SqsTable = ({
                 </tr>
             </thead>
             <tbody>
-                {sorted.map((item, idx) => {
+                {sorted.map(item  => {
                     const bucketName = item.url.split('/').pop();
 
                     if (filter !== '' && !bucketName.toLowerCase().includes(filter.toLocaleLowerCase())) {
@@ -101,19 +101,19 @@ const SqsTable = ({
                     }
 
                     return (
-                        <tr className="sqsRow" key={idx}>
+                        <tr className="sqsRow" key={item.url}>
                             <td>{bucketName}</td>
                             <td>{item.attributes.ApproximateNumberOfMessages}</td>
                             <td>{item.attributes.ApproximateNumberOfMessagesNotVisible}</td>
                             <td>{item.attributes.ApproximateNumberOfMessagesDelayed}</td>
-                            <td className="narrow"><Button onClick={() => onDelete(idx)} label="Delete" /></td>
-                            <td className="narrow"><Button onClick={() => onPurge(idx)} label="Purge" /></td>
-                            <td className="narrow"><Button onClick={() => onRefresh(idx)} label="Refresh" /></td>
+                            <td className="narrow"><Button onClick={() => onDelete(item.url)} label="Delete" /></td>
+                            <td className="narrow"><Button onClick={() => onPurge(item.url)} label="Purge" /></td>
+                            <td className="narrow"><Button onClick={() => onRefresh(item.url)} label="Refresh" /></td>
                             <td className="narrow">
-                                {watch !== idx ? <Button label="Watch" onClick={() => watchChange(idx)} /> : <LoadingSpinner onClick={() => watchChange(-1)} />}
+                                {watchUrlState !== item.url ? <Button label="Watch" onClick={() => watchChange(item.url)} /> : <LoadingSpinner onClick={() => watchChange('')} />}
                             </td>
-                            <td className="narrow"><Button onClick={() => onSendMessage(idx)} label="Send Message" /></td>
-                            <td className="narrow"><Button onClick={() => onReadMessage(idx)} label="Read Message" /></td>
+                            <td className="narrow"><Button onClick={() => onSendMessage(item.url)} label="Send Message" /></td>
+                            <td className="narrow"><Button onClick={() => onReadMessage(item.url)} label="Read Message" /></td>
                         </tr>
                     )
                 })}
@@ -123,5 +123,3 @@ const SqsTable = ({
 }
 
 export default SqsTable;
-
-

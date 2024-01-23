@@ -15,7 +15,6 @@ const SendSqsMessageModal = ({
     onClose,
     onSent,
     queueUrl,
-    idx
 }) => {
     const [inputParams, setInputParams] = useState(initialInputParams);
     const [errors, setErrors] = useState([]);
@@ -37,7 +36,7 @@ const SendSqsMessageModal = ({
         }
 
         sendMessage(queueUrl, inputParams.delaySeconds, inputParams.messageBody)
-            .then(() => onSent(idx));
+            .then(() => onSent(queueUrl));
     }
 
     useEffect(() => {

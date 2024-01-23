@@ -12,22 +12,25 @@ import './index.scss';
 
 const SqsPage = () => {
     const [data, setData] = useState([]);
-    const [watch, setWatch] = useState(-1);
-    const [sendQueue, setSendQueue] = useState(-1);
+    const [watch, setWatch] = useState('');
+    const [sendQueue, setSendQueue] = useState('');
     const [filter, setFilter] = useState('');
     const [newQueueModalOpen, setNewQueueModalOpen] = useState(false);
-    const [sqsReadId, setSqsReadId] = useState(-1);
+    const [sqsReadUrl, setSqsReadUrl] = useState('');
 
-    const refreshQueue = (attributes, idx) => {
-        setData(
-            [...data.slice(0, idx), { ...data[idx], attributes }, ...data.slice(idx + 1)]
-        );
+    const refreshQueue = (attributes, url) => {
+        const idx = data.findIndex(item => item.url === url);
+        if (idx !== -1) {
+            setData(
+                [...data.slice(0, idx), { ...data[idx], attributes }, ...data.slice(idx + 1)]
+            );
+        }
     }
 
     useEffect(() => {
         const updateTimer = () => {
-            if (watch >= 0) {
-                refresh(data[watch].url).then(r => refreshQueue(r, watch))
+            if (watch !== '') {
+                refresh(watch).then(r => refreshQueue(r, watch))
             }
         };
 
@@ -53,13 +56,12 @@ const SqsPage = () => {
     return (
         <>
             <SendSqsMessageModal
-                idx={sendQueue}
-                queueUrl={sendQueue >= 0 ? data[sendQueue].url : ''}
-                isOpen={sendQueue >= 0}
-                onClose={() => setSendQueue(-1)}
-                onSent={idx => {
-                    refresh(data[idx].url).then(r => refreshQueue(r, sendQueue))
-                    setSendQueue(-1)
+                queueUrl={sendQueue}
+                isOpen={sendQueue !== ''}
+                onClose={() => setSendQueue('')}
+                onSent={url => {
+                    refresh(url).then(r => refreshQueue(r, url))
+                    setSendQueue('')
                 }}
             />
             <Modal
@@ -71,12 +73,12 @@ const SqsPage = () => {
                     onSubmit={queueName => save(queueName).then(() => load().then(r => setData(r)))}
                 />
             </Modal>
-            <ReadSqsQueue isOpen={sqsReadId >= 0} onClose={() => setSqsReadId(-1)} queueUrl={sqsReadId >= 0 ? data[sqsReadId].url : ''} />
-            
+            <ReadSqsQueue isOpen={sqsReadUrl !== ''} onClose={() => setSqsReadUrl('')} queueUrl={sqsReadUrl} />
+
             <Button label="Create new queue" margin={6} onClick={() => {
                 setNewQueueModalOpen(true);
-                if (watch >= 0) {
-                    setWatch(-1);
+                if (watch !== '') {
+                    setWatch('');
                 }
             }} />
 
@@ -85,18 +87,18 @@ const SqsPage = () => {
             <SqsTable
                 data={data}
                 filter={filter}
-                watchIdx={watch}
-                onDelete={idx => {
-                    del(data[idx].url).then(() => load().then(r => setData(r)));
-                    setWatch(-1);
+                watchUrl={watch}
+                onDelete={url => {
+                    del(url).then(() => load().then(r => setData(r)));
+                    setWatch('');
                 }
                 }
 
-                onPurge={idx => purge(data[idx].url).then(() => load().then(r => setData(r)))}
-                onRefresh={idx => refresh(data[idx].url).then(r => refreshQueue(r, idx))}
-                onWatchChange={idx => setWatch(idx)}
-                onSendMessage={idx => setSendQueue(idx)}
-                onReadMessage={idx => setSqsReadId(idx)}
+                onPurge={url => purge(url).then(() => load().then(r => setData(r)))}
+                onRefresh={url => refresh(url).then(r => refreshQueue(r, url))}
+                onWatchChange={url => setWatch(url)}
+                onSendMessage={url => setSendQueue(url)}
+                onReadMessage={url => setSqsReadUrl(url)}
             />
         </>
     );
