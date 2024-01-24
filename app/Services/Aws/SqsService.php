@@ -5,15 +5,15 @@ namespace App\Services\Aws;
 
 use Exception;
 use Aws\Sqs\SqsClient;
-use App\Services\Aws\AwsConfigService;
 use App\Contracts\Aws\SqsServiceInterface;
 use App\Exceptions\Aws\BucketServiceException;
+use App\Contracts\Aws\AwsConfigServiceInterface;
 
 class SqsService implements SqsServiceInterface
 {
     private SqsClient $SqsClient;
 
-    public function __construct(AwsConfigService $config) 
+    public function __construct(AwsConfigServiceInterface $config) 
     {
         $this->SqsClient = new SqsClient($config->get());
     }

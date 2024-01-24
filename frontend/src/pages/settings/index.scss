@@ -1,0 +1,11 @@
+.settings {
+    display: flex;
+    flex-direction: column;
+
+    label {
+        display: flex;
+        justify-content: space-between;
+        width: 330px;
+        margin: 6px;
+    }
+}

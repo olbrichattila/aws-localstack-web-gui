@@ -6,7 +6,7 @@ namespace App\Services\Aws;
 
 use App\Contracts\Aws\AwsConfigServiceInterface;
 
-class AwsConfigService implements AwsConfigServiceInterface
+class AwsStaticConfigService implements AwsConfigServiceInterface
 {
     public function get(): array
     {
@@ -22,5 +22,11 @@ class AwsConfigService implements AwsConfigServiceInterface
                 'secret' => 'your-secret-access-key',
             ],
         ];
+    }
+
+    public function store(string $region, string $enpoint, string $key, string $secret): array
+    {
+        // not applicable here
+        return [];
     }
 }

@@ -8,12 +8,13 @@ use Exception;
 use Aws\S3\S3Client;
 use App\Contracts\Aws\BucketServiceInterface;
 use App\Exceptions\Aws\BucketServiceException;
+use App\Contracts\Aws\AwsConfigServiceInterface;
 
 class BucketService implements BucketServiceInterface
 {
     private S3Client $s3Client;
 
-    public function __construct(AwsConfigService $config)
+    public function __construct(AwsConfigServiceInterface $config)
     {
         $this->s3Client = new S3Client($config->get());
     }

@@ -1,139 +1,37 @@
-const headers = {
-    'Content-Type': 'application/json',
-};
-
-const host  = process.env.REACT_APP_API_URL;
+import { get, post, del } from './request';
 
 const loadBuckets = async () => {
-    try {
-        const response = await fetch(`${host}/api/s3/buckets`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error.message);
-        throw error;
-    }
+    return get('/api/s3/buckets');
 }
 
 const newBucket = async (bucketName) => {
-    const options = {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(
-            {
-                bucketName,
-            }
-        )
-    };
-
-    try {
-        const response = await fetch(`${host}/api/s3/buckets`, options);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error.message);
-        throw error;
-    }
+    return post('/api/s3/buckets', {
+        bucketName,
+    });
 }
 
 const delBucket = async (bucketName) => {
-    const options = {
-        method: 'DELETE',
-        headers,
-        body: JSON.stringify(
-            {
-                bucketName,
-            }
-        )
-    };
-
-    try {
-        const response = await fetch(`${host}/api/s3/buckets`, options);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error.message);
-        throw error;
-    }
+    return del('/api/s3/buckets', {
+        bucketName,
+    });
 }
 
 const listBucketContent = async (bucketName) => {
-    try {
-        const response = await fetch(`${host}/api/s3/list/${encodeURIComponent(bucketName)}`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error.message);
-        throw error;
-    }
+    return get(`/api/s3/list/${encodeURIComponent(bucketName)}`)
 }
 
 const delObject = async (bucketName, key) => {
-    const options = {
-        method: 'DELETE',
-        headers,
-        body: JSON.stringify(
-            {
-                bucketName,
-                fileName: key,
-            }
-        )
-    };
-
-    try {
-        const response = await fetch(`${host}/api/s3/buckets/delete/object`, options);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error.message);
-        throw error;
-    }
+    return del('/api/s3/buckets/delete/object', {
+        bucketName,
+        fileName: key,
+    });
 }
 
 const upload = async (bucketName, fileName) => {
-    const options = {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(
-            {
-                bucketName,
-                fileName,
-            }
-        )
-    };
-
-    try {
-        const response = await fetch(`${host}/api/s3/buckets/upload`, options);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error.message);
-        throw error;
-    }
+    return post('/api/s3/buckets/upload', {
+        bucketName,
+        fileName,
+    });
 }
 
 export { loadBuckets, newBucket, delBucket, listBucketContent, delObject, upload }

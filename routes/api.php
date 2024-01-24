@@ -1,8 +1,9 @@
 <?php
 
+use App\Http\Controllers\SettingsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use  App\Http\Controllers\S3Controller;
+use App\Http\Controllers\S3Controller;
 use App\Http\Controllers\SqsController;
 
 /*
@@ -40,3 +41,6 @@ Route::post('/sqs/message/send', [SqsController::class, 'sendMessage']);
 Route::post('/sqs/message/receive', [SqsController::class, 'receiveMessage']);
 Route::post('/sqs/message/receive/delete', [SqsController::class, 'receiveAndDeleteMessage']);
 Route::post('/sqs/message/delete', [SqsController::class, 'deleteMessage']);
+
+Route::get('/settings', [SettingsController::class, 'index']);
+Route::post('/settings', [SettingsController::class, 'store']);

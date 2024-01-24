@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { load, save, del, purge, refresh } from '../../api/sqs'
+import { load, save, delQueue, purge, refresh } from '../../api/sqs'
 import SaveBox from '../../components/savebox';
 import SendSqsMessageModal from '../../components/sendSqsMessageModal';
 import SqsTable from '../../components/sqsTable';
@@ -89,7 +89,7 @@ const SqsPage = () => {
                 filter={filter}
                 watchUrl={watch}
                 onDelete={url => {
-                    del(url).then(() => load().then(r => setData(r)));
+                    delQueue(url).then(() => load().then(r => setData(r)));
                     setWatch('');
                 }
                 }

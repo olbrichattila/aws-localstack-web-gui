@@ -5,3 +5,5 @@
 **/storage
 **/bootstrap/cache
 /resources/views/index.blade.php
+/database/database.sqlite
+database.sqlite
