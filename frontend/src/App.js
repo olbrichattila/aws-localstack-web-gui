@@ -1,9 +1,5 @@
 import { useState } from 'react';
 import './App.scss';
-import SqsPage from './pages/sqs';
-import S3Page from './pages/s3';
-import SnsPage from './pages/sns';
-import DynamoDBPage from './pages/DynamoDb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import SqsIcon from './icons/sqs';
@@ -11,10 +7,11 @@ import SnsIcon from './icons/sns';
 import DynamoDbIcon from './icons/dynamoDb';
 import S3Icon from './icons/s3';
 import MenuOption from './components/menuoption';
-import SettingsPage from './pages/settings';
+import RenderPage from './pages'
+import ErrorBoundary from './ErrorBoundary';
 
 function App() {
-  const [selectedMenu, setSelectedMenu] = useState(1);
+  const [selectedMenu, setSelectedMenu] = useState(5);
 
   return (
     <div className="App">
@@ -44,22 +41,9 @@ function App() {
           </ul>
 
         </div>
-        <div className="container">
-          <div className="containerHeader">
-            {selectedMenu === 1 && <><S3Icon /><span>S3</span></>}
-            {selectedMenu === 2 && <><SqsIcon /><span>SQS</span></>}
-            {selectedMenu === 3 && <><SnsIcon /><span>SNS</span></>}
-            {selectedMenu === 4 && <><DynamoDbIcon /><span>Dynamo DB</span></>}
-            {selectedMenu === 5 && <><FontAwesomeIcon icon={faCog} size="2x" /><span>Settings</span></>}
-          </div>
-          <div className="pageContainer">
-            {selectedMenu === 1 && <S3Page />}
-            {selectedMenu === 2 && <SqsPage />}
-            {selectedMenu === 3 && <SnsPage />}
-            {selectedMenu === 4 && <DynamoDBPage />}
-            {selectedMenu === 5 && <SettingsPage />}
-          </div>
-        </div>
+        <ErrorBoundary>
+          <RenderPage selectedMenu={selectedMenu} />
+        </ErrorBoundary>
       </div>
     </div>
   );

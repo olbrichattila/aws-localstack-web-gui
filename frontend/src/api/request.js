@@ -32,7 +32,9 @@ const request = async (type, path, payload = null) => {
         return data;
     } catch (error) {
         console.error('Error fetching data:', error.message);
-        throw error;
+        // throw error;
+        // return [];
+
     }
 }
 

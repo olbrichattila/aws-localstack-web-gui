@@ -10,7 +10,7 @@ const S3Bucket = ({onSelectBucket = () => null}) => {
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState('');
     const [newBucketModelIsOpen, setNewBucketModelIsOpen] = useState(false);
-
+    
     useEffect(() => {
         loadBuckets().then(buckets => setData(buckets));
     }, []);
