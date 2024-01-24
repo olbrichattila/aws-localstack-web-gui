@@ -32,7 +32,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_21.x | bash - && \
 COPY ./ /var/www/html
 
 # Create required folders
-RUN mkdir -p /var/www/html/storage/app \
+RUN touch /var/www/html/database/database.sqlite \
+    && mkdir -p /var/www/html/storage/app \
     && mkdir -p /var/www/html/storage/framework \
     && mkdir -p /var/www/html/storage/logs \
     && mkdir -p /var/www/html/storage/framework/sessions \
@@ -40,10 +41,12 @@ RUN mkdir -p /var/www/html/storage/app \
     && mkdir -p /var/www/html/bootstrap/cache \
     && chown www-data:www-data -R /var/www/html/storage \
     && chown www-data:www-data -R /var/www/html/bootstrap/cache \
-    && chown www-data:www-data -R /var/www/html/storage/framework/views
+    && chown www-data:www-data -R /var/www/html/storage/framework/views \
+    && chown www-data:www-data -R /var/www/html//database
 
 # Generate the Laravel autoload files
-RUN composer dump-autoload --optimize
+RUN composer dump-autoload --optimize \
+    && php artisan migrate
 
 RUN npm --prefix ./frontend/ install \
     && npm --prefix ./frontend/ run build
