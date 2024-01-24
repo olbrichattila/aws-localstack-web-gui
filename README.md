@@ -9,11 +9,11 @@ Services implemented:
 ## Install
 @todo
 
-## Use pre-build docker image
-'
+## Use pre-built docker image
+```
 docker pull aolb/localstack-web-ui:latest
 docker run -p 80:80 aolb/localstack-web-ui:latest
-'
+```
 
 ## Visit:
 ```
