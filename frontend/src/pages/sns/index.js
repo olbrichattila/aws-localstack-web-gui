@@ -3,12 +3,12 @@ import TopicPage from "./topic";
 import SubscriptionPage from "./subscription";
 
 const SnsPage = () => {
-    const [isSubPage, setIsSubPage] = useState(false);
+    const [topicArn, setTopicArn] = useState(false);
 
     return (
         <>
-            {!isSubPage && <TopicPage onManageSubs={() => setIsSubPage(true)} />}
-            {isSubPage && <SubscriptionPage onBack={() => setIsSubPage(false)} />}
+            {topicArn === '' && <TopicPage onManageSubs={topicArn => setTopicArn(topicArn)} />}
+            {topicArn !== '' && <SubscriptionPage topicArn={topicArn} onBack={() => setTopicArn('')} />}
         </>
     )
 }

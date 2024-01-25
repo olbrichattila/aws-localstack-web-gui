@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { deleteTopic, load, save, publish } from "../../api/sns";
 import FilterBox from "../../components/filterBox";
 import Spacer from "../../components/spacer";
@@ -11,9 +11,9 @@ const TopicPage = ({ onManageSubs = () => null }) => {
     const [filter, setFilter] = useState('');
     const [newTopicModalOpen, setNewTopicModalOpen] = useState(false);
     const [messageArn, setMessageArn] = useState('');
+    const [error, setError] = useState('');
 
     const onEvent = (e) => {
-
         if (e.name === 'Delete') {
             deleteTopic(e.i.TopicArn).then(() => load().then(data => setData(data)))
         }
@@ -21,11 +21,30 @@ const TopicPage = ({ onManageSubs = () => null }) => {
         if (e.name === 'Send Message') {
             setMessageArn(e.i.TopicArn);
         }
+
+        if (e.name === 'clickable') {
+            onManageSubs(e.i.TopicArn);
+        }
     }
 
-    useState(() => {
+    useEffect(() => {
         load().then(data => setData(data));
     }, []);
+
+    useEffect(() => {
+        let timeoutId = -1;
+        if (error !== '') {
+            timeoutId = setTimeout(() => {
+                setError('');
+            }, 4000);
+        }
+
+        return () => {
+            if (timeoutId !== -1) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [error])
 
     return (
         <div>
@@ -36,7 +55,10 @@ const TopicPage = ({ onManageSubs = () => null }) => {
                 onSubmit={name => save(name).then(() => load().then(r => {
                     setData(r);
                     setNewTopicModalOpen(false);
-                }))}
+                })).catch(error => {
+                    setError(error.message ?? 'Error fetching data');
+                    setNewTopicModalOpen(false);
+                })}
             />
 
             <SaveBox
@@ -53,7 +75,9 @@ const TopicPage = ({ onManageSubs = () => null }) => {
                 setNewTopicModalOpen(true);
             }} />
 
-            <Button label="Manage subscriptions" margin={6} onClick={() => onManageSubs()} />
+            {error !== '' && <div className="errorLine">{error}</div>}
+
+            {/* <Button label="Manage subscriptions" margin={6} onClick={() => onManageSubs()} /> */}
 
             <FilterBox onSubmit={text => setFilter(text)} />
             <Spacer />
@@ -67,7 +91,8 @@ const TopicPage = ({ onManageSubs = () => null }) => {
                     columns: [
                         {
                             field: 'TopicArn',
-                            title: 'Topic Arn'
+                            title: 'Topic Arn',
+                            clickable: true,
                         },
                         {
                             field: 'SubscriptionsConfirmed',

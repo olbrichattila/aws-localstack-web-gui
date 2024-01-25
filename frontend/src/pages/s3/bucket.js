@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import Button from "../../components/button";
 import FilterBox from "../../components/filterBox";
 import Spacer from "../../components/spacer";
-import NewS3BucketModel from "../../components/newS3BucketModel";
-import { loadBuckets, delBucket } from "../../api/s3";
+import { loadBuckets, delBucket, newBucket } from "../../api/s3";
 import InteractiveTable from "../../components/interactiveTable";
+import SaveBox from "../../components/savebox";
 
 const S3Bucket = ({ onSelectBucket = () => null }) => {
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState('');
     const [newBucketModelIsOpen, setNewBucketModelIsOpen] = useState(false);
+    const [error, setError] = useState('');
 
     const onEvent = (e) => {
         if (e.name === 'Delete') {
@@ -25,18 +26,39 @@ const S3Bucket = ({ onSelectBucket = () => null }) => {
         loadBuckets().then(buckets => setData(buckets));
     }, []);
 
+    useEffect(() => {
+        let timeoutId = -1;
+        if (error !== '') {
+            timeoutId = setTimeout(() => {
+                setError('');
+            }, 4000);
+        }
+
+        return () => {
+            if (timeoutId !== -1) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [error])
+
     return (
         <>
-            <NewS3BucketModel
+            <SaveBox
+                title="New Bucket:"
                 isOpen={newBucketModelIsOpen}
                 onClose={() => setNewBucketModelIsOpen(false)}
-                onSaved={() => {
-                    loadBuckets().then(buckets => setData(buckets));
-                    setNewBucketModelIsOpen(false);
-
+                onSubmit={name => {
+                    newBucket(name).then(() => loadBuckets().then(buckets => {
+                        setData(buckets);
+                        setNewBucketModelIsOpen(false);
+                    })).catch(error => {
+                        setNewBucketModelIsOpen(false);
+                        setError(error.message ?? 'Error fetching data');
+                    });
                 }}
             />
             <Button label="Create new bucket" margin={6} onClick={() => setNewBucketModelIsOpen(true)} />
+            {error !== '' && <div className="errorLine" >{error}</div>}
             <FilterBox onSubmit={text => setFilter(text)} />
             <Spacer />
             <InteractiveTable

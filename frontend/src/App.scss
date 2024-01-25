@@ -101,3 +101,10 @@ textarea {
 label {
   font-weight: 800;
 }
+
+.errorLine {
+  border: 1px solid darkred;
+  margin: 6px 0;
+  padding: 6px;
+  color: darkred;
+}

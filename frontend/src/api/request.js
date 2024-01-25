@@ -25,16 +25,16 @@ const request = async (type, path, payload = null) => {
     try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}${path}`, options);
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            const json = await response.json();
+            const message = json.errors ? JSON.stringify(json) : 'Network response was not ok';
+
+            throw new Error(message);
         }
 
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error('Error fetching data:', error.message);
         throw error;
-        // return [];
-
     }
 }
 

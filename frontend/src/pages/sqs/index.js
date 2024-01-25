@@ -16,6 +16,7 @@ const SqsPage = () => {
     const [filter, setFilter] = useState('');
     const [newQueueModalOpen, setNewQueueModalOpen] = useState(false);
     const [sqsReadUrl, setSqsReadUrl] = useState('');
+    const [error, setError] = useState('');
 
     const onEvent = (e) => {
         switch (e.name) {
@@ -30,7 +31,7 @@ const SqsPage = () => {
                 refresh(e.i.url).then(r => refreshQueue(r, e.i.url));
                 break;
             case 'Watch':
-                setWatch(e.w ? e.i.url: '');
+                setWatch(e.w ? e.i.url : '');
                 break;
             case 'Send Message':
                 setSendQueue(e.i.url)
@@ -53,20 +54,20 @@ const SqsPage = () => {
     }
 
     useEffect(() => {
-        const updateTimer = () => {
-            if (watch !== '') {
+        let timerId = -1;
+        if (watch !== '') {
+            timerId = setInterval(() => {
                 refresh(watch).then(r => refreshQueue(r, watch))
-            }
-        };
-
-        const timerId = setInterval(updateTimer, 2000);
+            }, 2000);
+            refresh(watch).then(r => refreshQueue(r, watch))
+        }
 
         return () => {
-            clearInterval(timerId);
-
+            if (timerId !== -1) {
+                clearInterval(timerId);
+            }
         };
     }, [watch]);
-
 
     useEffect(() => {
         load().then(r => setData(r));
@@ -77,6 +78,21 @@ const SqsPage = () => {
             setNewQueueModalOpen(false);
         }
     }, [data]);
+
+    useEffect(() => {
+        let timeoutId = -1;
+        if (error !== '') {
+            timeoutId = setTimeout(() => {
+                setError('');
+            }, 4000);
+        }
+
+        return () => {
+            if (timeoutId !== -1) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [error])
 
     return (
         <>
@@ -92,9 +108,12 @@ const SqsPage = () => {
 
             <SaveBox
                 isOpen={newQueueModalOpen}
-                onClose={() => setNewQueueModalOpen()}
+                onClose={() => setNewQueueModalOpen(false)}
                 title='New SQS queue name:'
-                onSubmit={queueName => save(queueName).then(() => load().then(r => setData(r)))}
+                onSubmit={queueName => save(queueName).then(() => load().then(r => setData(r))).catch(error => {
+                    setError(error.message ?? 'Cannot fetch data');
+                    setNewQueueModalOpen(false);
+                })}
             />
 
             <ReadSqsQueue isOpen={sqsReadUrl !== ''} onClose={() => setSqsReadUrl('')} queueUrl={sqsReadUrl} />
@@ -105,6 +124,8 @@ const SqsPage = () => {
                     setWatch('');
                 }
             }} />
+
+            {error !== '' && <div className='errorLine'>{error}</div>}
 
             <FilterBox onSubmit={text => setFilter(text)} />
             <Spacer />

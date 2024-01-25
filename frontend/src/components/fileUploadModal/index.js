@@ -18,7 +18,7 @@ const FileUploadModal = ({ isOpen, onClose, onUploaded = () => null }) => {
             if (error !== '') {
                 setError('');
             }
-        }, 2000);
+        }, 4000);
         return () => {
             clearTimeout(timeoutId);
         };

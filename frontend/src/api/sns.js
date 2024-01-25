@@ -14,11 +14,18 @@ const deleteTopic = async (name) => {
 
 const sendHttpMessage = (topicArn, url) => {
     return post(`/api/sns/sub/${encodeURIComponent(topicArn)}`, {url});
-    
 }
 
 const publish = (topicArn, message) => {
     return post(`/api/sns/sub/${encodeURIComponent(topicArn)}/publish`, {message});
 }
 
-export { load, save, deleteTopic, sendHttpMessage, publish };
+const subList = async (topicArn) => {
+    return get(`/api/sns/sub/${encodeURIComponent(topicArn)}}`);
+}
+
+const deleteSub = async (subArn) => {
+    return del(`/api/sns/sub/${encodeURIComponent(subArn)}`);
+}
+
+export { load, save, deleteTopic, sendHttpMessage, publish, subList, deleteSub };

@@ -20,7 +20,6 @@ const InteractiveTable = ({
         setSortInfo({ field, asc })
     }
 
-
     useEffect(() => {
         setSorted(resort(data, sortInfo.field, sortInfo.asc))
     }, [sortInfo, data])
@@ -29,8 +28,8 @@ const InteractiveTable = ({
         <table className='sqsTable'>
             <thead>
                 <tr>
-                    {structInfo.columns.map(struct =>
-                        <th>
+                    {structInfo.columns.map((struct, colidx) =>
+                        <th key={`col_${colidx}`}>
                             <SortBox
                                 showArrow={sortInfo.field === struct.field}
                                 onClick={() => sortClick(struct.field)}
@@ -43,26 +42,26 @@ const InteractiveTable = ({
                 </tr>
             </thead>
             <tbody>
-                {sorted.map(item => {
+                {sorted.map((item, idx) => {
                     const filterValue = valueByPath(item, structInfo.filterField);
                     if (filter !== '' && !filterValue.toLowerCase().includes(filter.toLocaleLowerCase())) {
                         return null;
                     }
 
                     return (
-                        <tr className="sqsRow" key={item.TopicArn}>
-                            {structInfo.columns.map(struct => {
+                        <tr className="sqsRow" key={`sorted_${idx}`}>
+                            {structInfo.columns.map((struct, idx) => {
                                 return struct.clickable ?
-                                    <td className="clickable" onClick={() => onEvent({ name: 'clickable', i: item, w: true })}>{valueByPath(item, struct.field)}</td> :
-                                    <td>{valueByPath(item, struct.field)}</td>
+                                    <td key={`clickable_${idx}`} className="clickable" onClick={() => onEvent({ name: 'clickable', i: item, w: true })}>{valueByPath(item, struct.field)}</td> :
+                                    <td key={`clickable_${idx}`}>{valueByPath(item, struct.field)}</td>
                             }
                             )}
 
-                            {structInfo.events.map(e => <td className="narrow">
+                            {structInfo.events.map((e, idx) => <td className="narrow">
                                 {
                                     filterValue === watch && structInfo.watchButton === e ?
-                                        <LoadingSpinner onClick={() => onEvent({ name: e, i: item, w: false })} /> :
-                                        <Button onClick={() => onEvent({ name: e, i: item, w: true })} label={e} />
+                                        <LoadingSpinner key={`event_${idx}`} onClick={() => onEvent({ name: e, i: item, w: false })} /> :
+                                        <Button key={idx} onClick={() => onEvent({ name: e, i: item, w: true })} label={e} />
                                 }
                             </td>)}
                         </tr>
