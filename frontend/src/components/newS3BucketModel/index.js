@@ -6,14 +6,25 @@ import './index.scss';
 
 const NewS3BucketModel = ({ isOpen, onClose, onSaved }) => {
     const [bucketName, setBucketName] = useState('');
+
     const addBucket = () => {
-        newBucket(bucketName).then(() => onSaved())
+        newBucket(bucketName).then(() => onSavedClick())
+    }
+
+    const onCloseClick = () => {
+        setBucketName('');
+        onClose();
+    }
+
+    const onSavedClick = () => {
+        setBucketName('');
+        onSaved()
     }
 
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={() => onCloseClick()}
         >
             <div className='newS3Bucket'>
                 <label>

@@ -36,7 +36,15 @@ const SendSqsMessageModal = ({
         }
 
         sendMessage(queueUrl, inputParams.delaySeconds, inputParams.messageBody)
-            .then(() => onSent(queueUrl));
+            .then(() => {
+                onSent(queueUrl);
+                setInputParams(initialInputParams);
+            });
+    }
+
+    const onCloseClick = () => {
+        setInputParams(initialInputParams);
+        onClose();
     }
 
     useEffect(() => {
@@ -51,7 +59,7 @@ const SendSqsMessageModal = ({
     }, [errors])
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={() => onCloseClick()}>
             <div className='sendSqsMessageModalWrapper'>
                 <label>
                     <span>Delay Seconds:</span>

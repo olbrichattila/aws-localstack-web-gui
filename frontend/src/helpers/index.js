@@ -4,8 +4,8 @@ const integerOnly = (text) => {
 
 const resort = (data, field, asc) => {
      return data.sort((a, b) => {
-          const aValue = getValueByPath(a, field);
-          const bValue = getValueByPath(b, field);
+          const aValue = valueByPath(a, field);
+          const bValue = valueByPath(b, field);
           if (aValue === bValue) {
                return 0;
           }
@@ -18,7 +18,7 @@ const resort = (data, field, asc) => {
      });
 }
 
-function getValueByPath(obj, path) {
+const valueByPath = (obj, path) => {
      return path.split('.').reduce((acc, key) => (acc && acc[key] !== 'undefined' ? acc[key] : undefined), obj);
 }
 
@@ -47,4 +47,4 @@ const handleOpenS3Object = (bucketName, fileName) => {
      document.body.removeChild(form);
    };
 
-export { integerOnly, resort, handleOpenS3Object }
+export { valueByPath, integerOnly, resort, handleOpenS3Object }

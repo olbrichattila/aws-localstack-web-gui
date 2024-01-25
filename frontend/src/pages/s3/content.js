@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { delObject, listBucketContent, upload } from '../../api/s3';
-import S3BucketTable from '../../components/s3BucketTable';
 import FilterBox from '../../components/filterBox';
 import Spacer from '../../components/spacer';
 import Button from '../../components/button';
 import FileUploadModal from '../../components/fileUploadModal';
+import InteractiveTable from '../../components/interactiveTable';
 import { handleOpenS3Object } from '../../helpers';
 
 const S3BucketContent = ({ bucketName = '', onBack = () => null }) => {
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState('');
     const [uploadFileModalVisible, setUploadFileMOdalVisible] = useState(false);
+
+    const onEvent = (e) => {
+        if (e.name === 'Delete') {
+            delObject(bucketName, e.i.Key).then(() => listBucketContent(bucketName).then(content => setData(content)));
+        }
+
+        if (e.name === 'View') {
+            handleOpenS3Object(bucketName, e.i.Key);
+
+        }
+    }
 
     useEffect(() => {
         if (bucketName === '') {
@@ -34,12 +45,39 @@ const S3BucketContent = ({ bucketName = '', onBack = () => null }) => {
             <Button label="Upload file" margin={6} onClick={() => setUploadFileMOdalVisible(true)} />
             <FilterBox onSubmit={text => setFilter(text)} />
             <Spacer />
-            <S3BucketTable
+            <InteractiveTable
+                structInfo={{
+                    initialSort: {
+                        field: 'LastModified',
+                        asc: false
+                    },
+                    filterField: 'Key',
+                    columns: [
+                        {
+                            field: 'LastModified',
+                            title: 'Last Modified',
+                            clickable: false,
+                        },
+                        {
+                            field: 'Key',
+                            title: 'Name',
+                            clickable: true,
+                        },
+                        {
+                            field: 'Size',
+                            title: 'File Size',
+                            clickable: true,
+                        },
+                    ],
+                    events: [
+                        'View',
+                        'Delete'
+                    ],
+                }}
                 data={data}
                 filter={filter}
-                onDelete={key => delObject(bucketName, key).then(() => listBucketContent(bucketName).then(content => setData(content)))}
-                onView={fileName => handleOpenS3Object(bucketName, fileName)}
-            />
+                onEvent={e => onEvent(e)}
+             />
         </>
     )
 }

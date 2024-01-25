@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { load, save, delQueue, purge, refresh } from '../../api/sqs'
 import SaveBox from '../../components/savebox';
 import SendSqsMessageModal from '../../components/sendSqsMessageModal';
-import SqsTable from '../../components/sqsTable';
 import FilterBox from '../../components/filterBox';
-import Modal from '../../components/modal';
 import Button from '../../components/button';
 import Spacer from '../../components/spacer';
 import ReadSqsQueue from '../../components/readSqsQueue';
 import './index.scss';
+import InteractiveTable from '../../components/interactiveTable';
 
 const SqsPage = () => {
     const [data, setData] = useState([]);
@@ -17,6 +16,32 @@ const SqsPage = () => {
     const [filter, setFilter] = useState('');
     const [newQueueModalOpen, setNewQueueModalOpen] = useState(false);
     const [sqsReadUrl, setSqsReadUrl] = useState('');
+
+    const onEvent = (e) => {
+        switch (e.name) {
+            case 'Delete':
+                delQueue(e.i.url).then(() => load().then(r => setData(r)));
+                setWatch('');
+                break;
+            case 'Purge':
+                purge(e.i.url).then(() => load().then(r => setData(r)));
+                break;
+            case 'Refresh':
+                refresh(e.i.url).then(r => refreshQueue(r, e.i.url));
+                break;
+            case 'Watch':
+                setWatch(e.w ? e.i.url: '');
+                break;
+            case 'Send Message':
+                setSendQueue(e.i.url)
+                break;
+            case 'Read Message':
+                setSqsReadUrl(e.i.url)
+                break;
+            default:
+                console.error('Invalid event type' + e.name);
+        }
+    }
 
     const refreshQueue = (attributes, url) => {
         const idx = data.findIndex(item => item.url === url);
@@ -64,15 +89,14 @@ const SqsPage = () => {
                     setSendQueue('')
                 }}
             />
-            <Modal
+
+            <SaveBox
                 isOpen={newQueueModalOpen}
                 onClose={() => setNewQueueModalOpen()}
-            >
-                <SaveBox
-                    title='New SQS queue name:'
-                    onSubmit={queueName => save(queueName).then(() => load().then(r => setData(r)))}
-                />
-            </Modal>
+                title='New SQS queue name:'
+                onSubmit={queueName => save(queueName).then(() => load().then(r => setData(r)))}
+            />
+
             <ReadSqsQueue isOpen={sqsReadUrl !== ''} onClose={() => setSqsReadUrl('')} queueUrl={sqsReadUrl} />
 
             <Button label="Create new queue" margin={6} onClick={() => {
@@ -84,21 +108,50 @@ const SqsPage = () => {
 
             <FilterBox onSubmit={text => setFilter(text)} />
             <Spacer />
-            <SqsTable
+
+            <InteractiveTable
+                structInfo={{
+                    initialSort: {
+                        field: 'TopicArn',
+                        asc: true
+                    },
+                    filterField: 'url',
+                    columns: [
+                        {
+                            field: 'url',
+                            title: 'Queue Url',
+                            clickable: false,
+                        },
+                        {
+                            field: 'attributes.ApproximateNumberOfMessages',
+                            title: 'Messages',
+                            clickable: false,
+                        },
+                        {
+                            field: 'attributes.ApproximateNumberOfMessagesNotVisible',
+                            title: 'Messages Not Visible',
+                            clickable: false,
+                        },
+                        {
+                            field: 'attributes.ApproximateNumberOfMessagesDelayed',
+                            title: 'Messages Delayed',
+                            clickable: false,
+                        },
+                    ],
+                    events: [
+                        'Delete',
+                        'Purge',
+                        'Refresh',
+                        'Watch',
+                        'Send Message',
+                        'Read Message',
+                    ],
+                    watchButton: 'Watch',
+                }}
                 data={data}
                 filter={filter}
-                watchUrl={watch}
-                onDelete={url => {
-                    delQueue(url).then(() => load().then(r => setData(r)));
-                    setWatch('');
-                }
-                }
-
-                onPurge={url => purge(url).then(() => load().then(r => setData(r)))}
-                onRefresh={url => refresh(url).then(r => refreshQueue(r, url))}
-                onWatchChange={url => setWatch(url)}
-                onSendMessage={url => setSendQueue(url)}
-                onReadMessage={url => setSqsReadUrl(url)}
+                onEvent={e => onEvent(e)}
+                watch={watch}
             />
         </>
     );

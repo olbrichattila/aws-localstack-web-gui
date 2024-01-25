@@ -18,7 +18,10 @@ const ReadSqsQueue = ({ queueUrl, isOpen, onClose }) => {
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={() => {
+                setMessages([]);
+                onClose();
+            }}
         >
             <div className='readSqsQueueModal'>
                 <label>
@@ -39,7 +42,6 @@ const ReadSqsQueue = ({ queueUrl, isOpen, onClose }) => {
             </div>
         </Modal>
     );
-
 }
 
 export default ReadSqsQueue;

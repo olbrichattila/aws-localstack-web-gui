@@ -14,6 +14,15 @@ const FilterBox = ({ onSubmit = () => null }) => {
         <Button
             onClick={() => onSubmit(text)}
             label="Filter result"
+            margin={3}
+        />
+        <Button
+            onClick={() => {
+                setText('');
+                onSubmit('');
+            } }
+            label="Reset"
+            margin={3}
         />
     </div>
 }

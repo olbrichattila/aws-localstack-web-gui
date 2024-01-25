@@ -6,7 +6,7 @@ namespace App\Services\Aws;
 use Exception;
 use Aws\Sqs\SqsClient;
 use App\Contracts\Aws\SqsServiceInterface;
-use App\Exceptions\Aws\BucketServiceException;
+use App\Exceptions\Aws\SqsServiceException;
 use App\Contracts\Aws\AwsConfigServiceInterface;
 
 class SqsService implements SqsServiceInterface
@@ -24,7 +24,7 @@ class SqsService implements SqsServiceInterface
             $result = $this->SqsClient->listQueues();
             
         } catch (Exception $e) {
-            throw new BucketServiceException([$e->getMessage()]);
+            throw new SqsServiceException([$e->getMessage()]);
         }
 
         return $result->get('QueueUrls') ?: [];
@@ -52,7 +52,7 @@ class SqsService implements SqsServiceInterface
                 ],
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException([$e->getMessage()]);
+            throw new SqsServiceException([$e->getMessage()]);
         }
 
         return (array) $result;
@@ -65,7 +65,7 @@ class SqsService implements SqsServiceInterface
                 'QueueUrl' => $queueUrl
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException([$e->getMessage()]);
+            throw new SqsServiceException([$e->getMessage()]);
         }
 
         return (array) $result;
@@ -78,7 +78,7 @@ class SqsService implements SqsServiceInterface
                 'QueueUrl' => $queueUrl
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException([$e->getMessage()]);
+            throw new SqsServiceException([$e->getMessage()]);
         }
 
         return (array) $result;
@@ -92,10 +92,10 @@ class SqsService implements SqsServiceInterface
                 'QueueUrl' => $queueUrl,
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException([$e->getMessage()]);
+            throw new SqsServiceException([$e->getMessage()]);
         }
 
-        return $result['Attributes'] ?? throw new BucketServiceException(['Cannot retreive attributes of this queue at the moment.']);
+        return $result['Attributes'] ?? throw new SqsServiceException(['Cannot retreive attributes of this queue at the moment.']);
     }
 
 
@@ -130,7 +130,7 @@ class SqsService implements SqsServiceInterface
                 'QueueUrl' => $queueUrl, // REQUIRED
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException([$e->getMessage()]);
+            throw new SqsServiceException([$e->getMessage()]);
         }
 
         return (array) $result;
@@ -146,7 +146,7 @@ class SqsService implements SqsServiceInterface
                 'AttributeNames' => ['All']
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException([$e->getMessage()]);
+            throw new SqsServiceException([$e->getMessage()]);
         }
 
         return (array) $result->get('Messages') ?? [];
@@ -180,7 +180,7 @@ class SqsService implements SqsServiceInterface
                 'ReceiptHandle' => $receiptHandle,
             ]);
         } catch (Exception $e) {
-            throw new BucketServiceException([$e->getMessage()]);
+            throw new SqsServiceException([$e->getMessage()]);
         }
 
         return (array) $result;

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SnsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\S3Controller;
@@ -20,6 +21,10 @@ use App\Http\Controllers\SqsController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+Route::get('/settings', [SettingsController::class, 'index']);
+Route::post('/settings', [SettingsController::class, 'store']);
 
 Route::get('/s3/buckets', [S3Controller::class, 'buckets']);
 Route::post('/s3/buckets', [S3Controller::class, 'create']);
@@ -42,5 +47,15 @@ Route::post('/sqs/message/receive', [SqsController::class, 'receiveMessage']);
 Route::post('/sqs/message/receive/delete', [SqsController::class, 'receiveAndDeleteMessage']);
 Route::post('/sqs/message/delete', [SqsController::class, 'deleteMessage']);
 
-Route::get('/settings', [SettingsController::class, 'index']);
-Route::post('/settings', [SettingsController::class, 'store']);
+
+Route::get('/sns', [SnsController::class, 'listTopics']);
+Route::get('/sns/attributes', [SnsController::class, 'listTopicsWithAttributes']);
+Route::post('/sns', [SnsController::class, 'createTopic']);
+Route::delete('/sns', [SnsController::class, 'deleteTopic']);
+Route::post('/sns/attributes', [SnsController::class, 'topicAttributes']);
+
+// subs
+Route::get('/sns/sub/{arnName}', [SnsController::class, 'listSubscriptions']);
+Route::post('/sns/sub/{arnName}', [SnsController::class, 'addHttpSubscription']);
+Route::delete('/sns/sub/{subscriptionArnName}', [SnsController::class, 'deleteSubscription']);
+Route::post('/sns/sub/{arnName}/publish', [SnsController::class, 'publish']);

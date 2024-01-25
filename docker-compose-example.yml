@@ -16,7 +16,7 @@ services:
       - "4566:4566"
       - "4510-4559:4510-4559"  # external services port range
     environment:
-      - SERVICES=s3,sqs  # Include additional services as needed
+      - SERVICES=s3,sqs,sns  # Include additional services as needed
       - DEBUG=1
       - AWS_ACCESS_KEY_ID=your-access-key-id
       - AWS_SECRET_ACCESS_KEY=your-secret-access-key
