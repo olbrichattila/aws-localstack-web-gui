@@ -9,7 +9,7 @@ const DynamoDBPage = () => {
     return (
         <>
         {tableName === '' && <Tables  onSelect={tableName => setTableName(tableName)} />}
-        {tableName !== '' && <Content />}
+        {tableName !== '' && <Content tableName={tableName} onBack={() => setTableName('')} />}
         </>
     );
 }

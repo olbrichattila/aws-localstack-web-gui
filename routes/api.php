@@ -62,6 +62,6 @@ Route::delete('/sns/sub/{subscriptionArnName}', [SnsController::class, 'deleteSu
 Route::post('/sns/sub/{arnName}/publish', [SnsController::class, 'publish']);
 
 
-Route::get('/dynamodb/{prefix}/{limit}', [DynamoDbController::class, 'listTables']);
+Route::get('/dynamodb-list/{limit}/{exclusiveStartTableName?}', [DynamoDbController::class, 'listTables']);
 Route::post('/dynamodb', [DynamoDbController::class, 'createTable']);
 Route::delete('/dynamodb/{tableName}', [DynamoDbController::class, 'deleteTable']);

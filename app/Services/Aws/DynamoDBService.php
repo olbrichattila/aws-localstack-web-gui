@@ -16,13 +16,18 @@ class DynamoDBService implements DynamoDBServiceInterface
         $this->client = new DynamoDbClient($config->get());
     }
 
-    public function listTables(string $prefix, int $limit): array
+    public function listTables(string $exclusiveStartTableName, int $limit): array
     {
+        $options = [
+            'Limit' => $limit,
+        ];
+
+        if ($exclusiveStartTableName !== '') {
+            $options['ExclusiveStartTableName'] = $exclusiveStartTableName;
+        }
+
         try {
-            $result = $this->client->listTables([
-                'ExclusiveStartTableName' => $prefix,
-                'Limit' => $limit,
-            ]);
+            $result = $this->client->listTables($options);
 
         } catch (Exception $e) {
             throw new DynamoDBServiceException([$e->getMessage()]);

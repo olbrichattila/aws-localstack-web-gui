@@ -13,9 +13,9 @@ class DynamoDbController extends Controller
 
     }
 
-    public function listTables(string $prefix, int $limit): array
+    public function listTables(int $limit, string $exclusiveStartTableName = ''): array
     {
-        return $this->dynamoDBService->listTables($prefix, $limit);
+        return $this->dynamoDBService->listTables($exclusiveStartTableName, $limit);
     }
 
     public function createTable(DynamoDbCreateTableRequest $request): array

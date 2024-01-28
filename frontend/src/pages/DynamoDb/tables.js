@@ -11,6 +11,7 @@ const Tables = ({ onSelect = () => null }) => {
     const [data, setData] = useState([]);
     const [error, setError] = useState('');
     const [createTableModelStatus, setCreateTableModelStatus] = useState(false);
+    const [tableListProps, setTableListProps] = useState({ exclusiveStartTableName: '', limit: 2 })
 
     const onEvent = (e) => {
         if (e.name === 'Delete') {
@@ -27,7 +28,8 @@ const Tables = ({ onSelect = () => null }) => {
     }
 
     const load = () => {
-        listTables('tab', 100).then(talbeList => setData(talbeList.map(tableName => { return { tableName } })))
+        listTables(tableListProps.exclusiveStartTableName, parseInt(tableListProps.limit))
+            .then(talbeList => setData(talbeList.map(tableName => { return { tableName } })));
     }
 
     const save = (payload) => {
@@ -52,7 +54,7 @@ const Tables = ({ onSelect = () => null }) => {
 
     useEffect(() => {
         load();
-    }, []);
+    }, [tableListProps]);
 
     return (
         <>
@@ -89,6 +91,18 @@ const Tables = ({ onSelect = () => null }) => {
                 filter={filter}
                 onEvent={e => onEvent(e)}
             />
+            {tableListProps.exclusiveStartTableName !== '' && <Button
+                margin={6}
+                label='First page'
+                onClick={() => setTableListProps({ ...tableListProps, exclusiveStartTableName: '' })}
+            />}
+            {data.length > 0 &&
+                <Button
+                    margin={6}
+                    label='Next page'
+                    onClick={() => setTableListProps({ ...tableListProps, exclusiveStartTableName: data[data.length - 1].tableName })}
+                />}
+
         </>
     );
 }
