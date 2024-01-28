@@ -1,9 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
+import Tables from "./tables";
+import Content from "./content";
+
 
 const DynamoDBPage = () => {
+    const [tableName, setTableName] = useState('');
     
     return (
-        <h2>Dynamo DB page is Under development</h2>
+        <>
+        {tableName === '' && <Tables  onSelect={tableName => setTableName(tableName)} />}
+        {tableName !== '' && <Content />}
+        </>
     );
 }
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DynamoDbController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SnsController;
 use Illuminate\Http\Request;
@@ -59,3 +60,8 @@ Route::get('/sns/sub/{arnName}', [SnsController::class, 'listSubscriptions']);
 Route::post('/sns/sub/{arnName}', [SnsController::class, 'addHttpSubscription']);
 Route::delete('/sns/sub/{subscriptionArnName}', [SnsController::class, 'deleteSubscription']);
 Route::post('/sns/sub/{arnName}/publish', [SnsController::class, 'publish']);
+
+
+Route::get('/dynamodb/{prefix}/{limit}', [DynamoDbController::class, 'listTables']);
+Route::post('/dynamodb', [DynamoDbController::class, 'createTable']);
+Route::delete('/dynamodb/{tableName}', [DynamoDbController::class, 'deleteTable']);
