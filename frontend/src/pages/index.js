@@ -1,36 +1,35 @@
+import { Route, Routes } from 'react-router-dom';
 import SqsPage from './sqs';
-import S3Page from './s3';
-import SnsPage from './sns';
-import DynamoDBPage from './DynamoDb';
+import S3Bucket from './s3/bucket';
+import S3BucketContent from './s3/content';
+import TopicPage from './sns/topic';
+import SubscriptionPage from './sns/subscription';
+import DynamoDbTables from './DynamoDb/tables';
+import DynamoDbContent from './DynamoDb/content';
 import SettingsPage from './settings';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 import SqsIcon from '../icons/sqs';
 import SnsIcon from '../icons/sns';
 import DynamoDbIcon from '../icons/dynamoDb';
 import S3Icon from '../icons/s3';
+import SettingsIcon from '../icons/settings';
+import Layout from './layout';
 // import withErrorBoundary from '../ErrorBoundary';
 
-const RenderPage = ({selectedMenu = 5}) => {
-    return (
-        <div className="container">
-          <div className="containerHeader">
-            {selectedMenu === 1 && <><S3Icon /><span>S3</span></>}
-            {selectedMenu === 2 && <><SqsIcon /><span>SQS</span></>}
-            {selectedMenu === 3 && <><SnsIcon /><span>SNS</span></>}
-            {selectedMenu === 4 && <><DynamoDbIcon /><span>Dynamo DB</span></>}
-            {selectedMenu === 5 && <><FontAwesomeIcon icon={faCog} size="2x" /><span>Settings</span></>}
-          </div>
-          <div className="pageContainer">
-            {selectedMenu === 1 && <S3Page />}
-            {selectedMenu === 2 && <SqsPage />}
-            {selectedMenu === 3 && <SnsPage />}
-            {selectedMenu === 4 && <DynamoDBPage />}
-            {selectedMenu === 5 && <SettingsPage />}
-          </div>
-        </div>
-    )
-
+const RenderPage = () => {
+  return (
+    <div className="container">
+      <Routes>
+        <Route path='/s3' element={<Layout Component={S3Bucket} Icon={S3Icon} title="S3" />} />
+        <Route path='/s3/:bucketName' element={<Layout Component={S3BucketContent} Icon={S3Icon} title="S3" />} />
+        <Route path='/sqs' element={<Layout Component={SqsPage} Icon={SqsIcon} title="SQS" />} />
+        <Route path='/sns' element={<Layout Component={TopicPage} Icon={SnsIcon} title="SNS" />} />
+        <Route path='/sns/:topicArn' element={<Layout Component={SubscriptionPage} Icon={SnsIcon} title="SNS Subscriptions" />} />
+        <Route path='/dynamodb' element={<Layout Component={DynamoDbTables} Icon={DynamoDbIcon} title="DynamoDB" />} />
+        <Route path='/dynamodb/:tableName' element={<Layout Component={DynamoDbContent} Icon={DynamoDbIcon} title="DynamoDB content" />} />
+        <Route path='/settings' element={<Layout Component={SettingsPage} Icon={SettingsIcon} title="Settings" />} />
+      </Routes>
+    </div>
+  )
 }
 
 // export default withErrorBoundary(RenderPage);

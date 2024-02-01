@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { deleteTopic, load, save, publish } from "../../api/sns";
 import FilterBox from "../../components/filterBox";
 import Spacer from "../../components/spacer";
@@ -6,7 +7,8 @@ import SaveBox from "../../components/savebox";
 import Button from "../../components/button";
 import InteractiveTable from "../../components/interactiveTable";
 
-const TopicPage = ({ onManageSubs = () => null }) => {
+const TopicPage = () => {
+    const navigate = useNavigate();
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState('');
     const [newTopicModalOpen, setNewTopicModalOpen] = useState(false);
@@ -23,7 +25,7 @@ const TopicPage = ({ onManageSubs = () => null }) => {
         }
 
         if (e.name === 'clickable') {
-            onManageSubs(e.i.TopicArn);
+            navigate(`/sns/${encodeURIComponent(e.i.TopicArn)}`);
         }
     }
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { delObject, listBucketContent, upload } from '../../api/s3';
 import FilterBox from '../../components/filterBox';
 import Spacer from '../../components/spacer';
@@ -7,7 +8,9 @@ import FileUploadModal from '../../components/fileUploadModal';
 import InteractiveTable from '../../components/interactiveTable';
 import { handleOpenS3Object } from '../../helpers';
 
-const S3BucketContent = ({ bucketName = '', onBack = () => null }) => {
+const S3BucketContent = () => {
+    const navigate = useNavigate()
+    const { bucketName } = useParams();
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState('');
     const [uploadFileModalVisible, setUploadFileMOdalVisible] = useState(false);
@@ -33,6 +36,7 @@ const S3BucketContent = ({ bucketName = '', onBack = () => null }) => {
 
     return (
         <>
+
             <FileUploadModal
                 isOpen={uploadFileModalVisible}
                 onClose={() => setUploadFileMOdalVisible(false)}
@@ -41,8 +45,9 @@ const S3BucketContent = ({ bucketName = '', onBack = () => null }) => {
                     setUploadFileMOdalVisible(false);
 
                 }} />
-            <Button label="<< Back" margin={6} onClick={() => onBack()} />
+            <Button label="<< Back" margin={6} onClick={() => navigate('/s3')} />
             <Button label="Upload file" margin={6} onClick={() => setUploadFileMOdalVisible(true)} />
+            <h3>Bucket name: {bucketName}</h3>
             <FilterBox onSubmit={text => setFilter(text)} />
             <Spacer />
             <InteractiveTable
@@ -61,12 +66,12 @@ const S3BucketContent = ({ bucketName = '', onBack = () => null }) => {
                         {
                             field: 'Key',
                             title: 'Name',
-                            clickable: true,
+                            clickable: false,
                         },
                         {
                             field: 'Size',
                             title: 'File Size',
-                            clickable: true,
+                            clickable: false,
                         },
                     ],
                     events: [
@@ -77,7 +82,7 @@ const S3BucketContent = ({ bucketName = '', onBack = () => null }) => {
                 data={data}
                 filter={filter}
                 onEvent={e => onEvent(e)}
-             />
+            />
         </>
     )
 }

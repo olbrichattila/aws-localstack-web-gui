@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BrowserRouter, useLocation } from 'react-router-dom';
 import './App.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
@@ -12,8 +13,10 @@ import ErrorBoundary from './ErrorBoundary';
 
 function App() {
   const [selectedMenu, setSelectedMenu] = useState(5);
+  
 
   return (
+    <BrowserRouter>
     <div className="App">
       <header className="App-header">
         AWS Localstack manager / V1.0001
@@ -21,31 +24,31 @@ function App() {
       <div className="main-wrapper">
         <div className="left-menu">
           <ul>
-            <MenuOption active={selectedMenu === 1} onClick={() => setSelectedMenu(1)}>
+            <MenuOption to="/s3" active={selectedMenu === 1} >
               S3<br /><S3Icon />
             </MenuOption>
-            <MenuOption active={selectedMenu === 2} onClick={() => setSelectedMenu(2)}>
+            <MenuOption to="/sqs" active={selectedMenu === 2} >
               SQS<br /><SqsIcon />
             </MenuOption>
-            <MenuOption active={selectedMenu === 3} onClick={() => setSelectedMenu(3)}>
+            <MenuOption to="/sns"active={selectedMenu === 3} >
               SNS<br /><SnsIcon />
             </MenuOption>
-            <MenuOption active={selectedMenu === 4} onClick={() => setSelectedMenu(4)}>
+            <MenuOption to="/dynamodb" active={selectedMenu === 4} >
               Dynamo DB<br /><DynamoDbIcon />
             </MenuOption>
           </ul>
           <ul>
-            <MenuOption active={selectedMenu === 5} onClick={() => setSelectedMenu(5)}>
+            <MenuOption to="/settings" active={selectedMenu === 5} >
               Settings<br /><FontAwesomeIcon icon={faCog} />
             </MenuOption>
           </ul>
-
         </div>
         <ErrorBoundary>
           <RenderPage selectedMenu={selectedMenu} />
         </ErrorBoundary>
       </div>
     </div>
+    </BrowserRouter>
   );
 }
 

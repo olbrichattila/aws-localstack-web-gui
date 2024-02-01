@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import LoadingSpinner from '../../icons/loadingSpinner';
 import Button from '../button';
-import './index.scss';
-import { resort, valueByPath } from '../../helpers';
 import SortBox from '../sortbox';
+import { resort, valueByPath } from '../../helpers';
+import './index.scss';
 
 const InteractiveTable = ({
     structInfo = {},

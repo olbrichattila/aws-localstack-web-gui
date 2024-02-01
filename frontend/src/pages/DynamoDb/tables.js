@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import FilterBox from "../../components/filterBox";
 import Spacer from "../../components/spacer";
 import InteractiveTable from "../../components/interactiveTable";
@@ -6,7 +7,8 @@ import { listTables, deleteTable, createTable } from "../../api/dynamoDb";
 import Button from "../../components/button";
 import DynamoDbCreateTable from "../../components/dynamoDbCreateTable";
 
-const Tables = ({ onSelect = () => null }) => {
+const DynamoDbTables = () => {
+    const navigate = useNavigate();
     const [filter, setFilter] = useState('');
     const [data, setData] = useState([]);
     const [error, setError] = useState('');
@@ -19,7 +21,7 @@ const Tables = ({ onSelect = () => null }) => {
         }
 
         if (e.name === 'clickable') {
-            onSelect(e.i.tableName);
+            navigate(`/dynamodb/${encodeURIComponent(e.i.tableName)}`)
         }
     }
 
@@ -107,4 +109,4 @@ const Tables = ({ onSelect = () => null }) => {
     );
 }
 
-export default Tables;
+export default DynamoDbTables;

@@ -16,3 +16,7 @@ deploy:
 	docker build -t localstack-web-ui .
 	docker tag localstack-web-ui:latest aolb/localstack-web-ui:latest
 	docker push aolb/localstack-web-ui:latest
+start-local-dev:
+	docker-compose start
+	php artisan serve > /dev/null 2>&1 &
+	npm --prefix ./frontend/ start > /dev/null 2>&1 &

@@ -1,18 +1,18 @@
 import React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/button";
 
-const Content = ({
-    tableName = '',
-    onBack = () => null,
-}) => {
+const DynamoDbContent = () => {
+    const navigate = useNavigate();
+    const { tableName } = useParams();
 
     return (
         <>
-            <h1>{tableName}</h1>
-            <Button margin={6} label="Back to table list" onClick={() => onBack()} />
+            <Button margin={6} label="Back to table list" onClick={() => navigate('/dynamodb')} />
+            <h3>Table name: {tableName}</h3>
             <h2>Dynamo DB content page is Under development</h2>
         </>
     );
 }
 
-export default Content;
+export default DynamoDbContent;

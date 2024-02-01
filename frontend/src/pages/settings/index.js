@@ -38,7 +38,8 @@ const SettingsPage = () => {
                 <input
                     type='text'
                     value={formState.region}
-                    onChange={(e) => setFormState({...formState, region: e.target.value})}
+                    placeholder="us-east-1"
+                    onChange={(e) => setFormState({ ...formState, region: e.target.value })}
                 />
             </label>
             <label>
@@ -46,7 +47,8 @@ const SettingsPage = () => {
                 <input
                     type='text'
                     value={formState.endpoint}
-                    onChange={(e) => setFormState({...formState, endpoint: e.target.value})}
+                    placeholder="http://localhost:4566"
+                    onChange={(e) => setFormState({ ...formState, endpoint: e.target.value })}
                 />
             </label>
             <label>
@@ -54,7 +56,8 @@ const SettingsPage = () => {
                 <input
                     type='text'
                     value={formState.key}
-                    onChange={(e) => setFormState({...formState, key: e.target.value})}
+                    placeholder="your-access-key-id"
+                    onChange={(e) => setFormState({ ...formState, key: e.target.value })}
                 />
             </label>
             <label>
@@ -62,16 +65,15 @@ const SettingsPage = () => {
                 <input
                     type='text'
                     value={formState.secret}
-                    onChange={(e) => setFormState({...formState, secret: e.target.value})}
+                    placeholder="your-secret-access-key"
+                    onChange={(e) => setFormState({ ...formState, secret: e.target.value })}
                 />
             </label>
             <label>
                 <div></div>
                 <Button label="save" onClick={() => save()} />
             </label>
-
         </div>
-
     );
 }
 

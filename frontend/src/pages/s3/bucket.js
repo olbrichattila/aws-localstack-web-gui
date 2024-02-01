@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import Button from "../../components/button";
 import FilterBox from "../../components/filterBox";
 import Spacer from "../../components/spacer";
@@ -6,7 +7,8 @@ import { loadBuckets, delBucket, newBucket } from "../../api/s3";
 import InteractiveTable from "../../components/interactiveTable";
 import SaveBox from "../../components/savebox";
 
-const S3Bucket = ({ onSelectBucket = () => null }) => {
+const S3Bucket = () => {
+    const navigate = useNavigate()
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState('');
     const [newBucketModelIsOpen, setNewBucketModelIsOpen] = useState(false);
@@ -18,7 +20,7 @@ const S3Bucket = ({ onSelectBucket = () => null }) => {
         }
 
         if (e.name === 'clickable') {
-            onSelectBucket(e.i.Name);
+            navigate(`/s3/${encodeURIComponent(e.i.Name)}`);
         }
     }
 

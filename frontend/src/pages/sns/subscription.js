@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Button from "../../components/button";
 import SaveBox from "../../components/savebox";
 import FilterBox from "../../components/filterBox";
@@ -6,8 +7,9 @@ import InteractiveTable from "../../components/interactiveTable";
 import Spacer from "../../components/spacer";
 import { subList, sendHttpMessage, deleteSub } from "../../api/sns";
 
-
-const SubscriptionPage = ({ topicArn = '', onBack = () => null }) => {
+const SubscriptionPage = () => {
+    const { topicArn } = useParams();
+    const navigate = useNavigate();
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState('');
     const [newSubModelVisible, setNewSubModelVisible] = useState(false);
@@ -57,11 +59,12 @@ const SubscriptionPage = ({ topicArn = '', onBack = () => null }) => {
                 })}
             />
 
-            <Button label="Back to topics" margin={6} onClick={() => onBack()} />
+            <Button label="Back to topics" margin={6} onClick={() => navigate('/sns')} />
             <Button label="Create new HTTP subscription" margin={6} onClick={() => {
                 setNewSubModelVisible(true);
             }} />
 
+            <h3>Topic Arn: {topicArn}</h3>
             {error !== '' && <div className="errorLine">{error}</div>}
 
             <FilterBox onSubmit={text => setFilter(text)} />
