@@ -20,3 +20,10 @@ start-local-dev:
 	docker-compose start
 	php artisan serve > /dev/null 2>&1 &
 	npm --prefix ./frontend/ start > /dev/null 2>&1 &
+
+update-laravel:
+	composer update --with-all-dependencies
+	php artisan migrate
+
+update-react:
+	cd frontend && npm update
