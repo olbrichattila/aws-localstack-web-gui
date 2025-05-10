@@ -13,13 +13,12 @@ import ErrorBoundary from './ErrorBoundary';
 
 function App() {
   const [selectedMenu, setSelectedMenu] = useState(5);
-  
 
   return (
     <BrowserRouter>
     <div className="App">
       <header className="App-header">
-        AWS Localstack manager / V1.0001
+        AWS Localstack manager / V1.0002
       </header>
       <div className="main-wrapper">
         <div className="left-menu">
