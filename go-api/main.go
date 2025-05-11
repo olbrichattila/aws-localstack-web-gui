@@ -2,6 +2,7 @@
 package main
 
 import (
+	"api/internal/aws/awsshared"
 	"api/internal/database"
 	"api/internal/server"
 	"fmt"
@@ -15,7 +16,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	server, err := server.New(db)
+	awsShared := awsshared.New(db)
+
+	server, err := server.New(db, awsShared)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

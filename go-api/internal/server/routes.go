@@ -88,8 +88,6 @@ func (s *server) initRoutes() {
 		"/api/s3/load",
 		s.initMiddlewares(
 			s.loads3ObjectHandler,
-			s.corsMiddleware,
-			s.jSONMiddleware,
 			s.getPostMiddleware,
 		),
 	)

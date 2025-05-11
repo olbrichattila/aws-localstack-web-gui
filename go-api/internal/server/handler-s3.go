@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,8 +10,6 @@ import (
 	"path/filepath"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
@@ -70,7 +67,6 @@ func (s *server) newS3BucketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.createBucket(req.Name); err != nil {
-		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -84,17 +80,18 @@ func (s *server) s3DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.deleteBucket(req.Name); err != nil {
-		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
 func (s *server) listS3Buckets() ([]types.Bucket, error) {
-	ctx := context.Background()
-	s3Client, err := s.getS3Client(ctx)
+	s3Client, ctx, err := s.awsShared.GetS3Client()
+	if err != nil {
+		return nil, err
+	}
 
-	output, err := s3Client.ListBuckets(ctx, &s3.ListBucketsInput{})
+	output, err := s3Client.ListBuckets(*ctx, &s3.ListBucketsInput{})
 	if err != nil {
 		return nil, err
 	}
@@ -103,10 +100,12 @@ func (s *server) listS3Buckets() ([]types.Bucket, error) {
 }
 
 func (s *server) listS3BucketObjects(bucketName string) ([]types.Object, error) {
-	ctx := context.Background()
-	s3Client, err := s.getS3Client(ctx)
+	s3Client, ctx, err := s.awsShared.GetS3Client()
+	if err != nil {
+		return nil, err
+	}
 
-	resp, err := s3Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+	resp, err := s3Client.ListObjectsV2(*ctx, &s3.ListObjectsV2Input{
 		Bucket: aws.String(bucketName),
 	})
 	if err != nil {
@@ -117,10 +116,12 @@ func (s *server) listS3BucketObjects(bucketName string) ([]types.Object, error) 
 }
 
 func (s *server) createBucket(name string) error {
-	ctx := context.Background()
-	s3Client, err := s.getS3Client(ctx)
+	s3Client, ctx, err := s.awsShared.GetS3Client()
+	if err != nil {
+		return err
+	}
 
-	_, err = s3Client.CreateBucket(ctx, &s3.CreateBucketInput{
+	_, err = s3Client.CreateBucket(*ctx, &s3.CreateBucketInput{
 		Bucket: aws.String(name),
 	})
 	if err != nil {
@@ -131,10 +132,12 @@ func (s *server) createBucket(name string) error {
 }
 
 func (s *server) deleteBucket(name string) error {
-	ctx := context.Background()
-	s3Client, err := s.getS3Client(ctx)
+	s3Client, ctx, err := s.awsShared.GetS3Client()
+	if err != nil {
+		return err
+	}
 
-	_, err = s3Client.DeleteBucket(ctx, &s3.DeleteBucketInput{
+	_, err = s3Client.DeleteBucket(*ctx, &s3.DeleteBucketInput{
 		Bucket: aws.String(name),
 	})
 	if err != nil {
@@ -181,37 +184,35 @@ func (s *server) uploadToS3Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.Background()
-	s3Client, err := s.getS3Client(ctx)
+	s3Client, ctx, err := s.awsShared.GetS3Client()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	file, err := os.Open("./uploads/" + req.FileName)
 	if err != nil {
-		fmt.Println("failed to open file: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	defer file.Close()
 
-	_, err = s3Client.PutObject(ctx, &s3.PutObjectInput{
+	_, err = s3Client.PutObject(*ctx, &s3.PutObjectInput{
 		Bucket: aws.String(req.BucketName),
 		Key:    aws.String(req.FileName),
 		Body:   file,
 	})
 	if err != nil {
-		fmt.Println("failed to upload object: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	s.s3BucketObjectList(w, r, req.BucketName)
 }
 
 func (s *server) uploadToServerHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		fmt.Println("not post")
-		return
-	}
-
-	fmt.Println("Content-Type:", r.Header.Get("Content-Type"))
-
 	err := r.ParseMultipartForm(10 << 20) // 10MB
 	if err != nil {
-		fmt.Println("File size", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -219,7 +220,6 @@ func (s *server) uploadToServerHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the file from form
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		fmt.Println("File ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -228,7 +228,6 @@ func (s *server) uploadToServerHandler(w http.ResponseWriter, r *http.Request) {
 	// Create a destination file
 	dst, err := os.Create("./uploads/" + handler.Filename)
 	if err != nil {
-		fmt.Println("crete ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -237,7 +236,6 @@ func (s *server) uploadToServerHandler(w http.ResponseWriter, r *http.Request) {
 	// Copy the uploaded file to the destination
 	_, err = io.Copy(dst, file)
 	if err != nil {
-		fmt.Println("copy ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -250,15 +248,14 @@ func (s *server) deleteS3ObjectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.Background()
-	s3Client, err := s.getS3Client(ctx)
+	s3Client, ctx, err := s.awsShared.GetS3Client()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Delete object
-	_, err = s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+	_, err = s3Client.DeleteObject(*ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(req.BucketName),
 		Key:    aws.String(req.FileName),
 	})
@@ -273,27 +270,23 @@ func (s *server) loads3ObjectHandler(w http.ResponseWriter, r *http.Request) {
 	// Limit size to avoid large file uploads (optional)
 	// r.ParseMultipartForm(10 << 20) // 10MB
 
-	// Get a regular form value
 	bucketName := r.FormValue("bucketName")
-	fmt.Printf("Name: %s\n", bucketName)
-
 	fileName := r.FormValue("fileName")
-	fmt.Printf("Name: %s\n", fileName)
 
-	ctx := context.Background()
-	s3Client, err := s.getS3Client(ctx)
+	s3Client, ctx, err := s.awsShared.GetS3Client()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Get the object
-	output, err := s3Client.GetObject(context.TODO(), &s3.GetObjectInput{
+	output, err := s3Client.GetObject(*ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(fileName),
 	})
 	if err != nil {
-		fmt.Printf("failed to get object: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	defer output.Body.Close()
 
@@ -301,17 +294,17 @@ func (s *server) loads3ObjectHandler(w http.ResponseWriter, r *http.Request) {
 	filePath := "./downloads/" + fileName
 	outFile, err := os.Create(filePath)
 	if err != nil {
-		fmt.Printf("failed to create file: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	defer outFile.Close()
 
 	// Copy S3 object to file
 	_, err = io.Copy(outFile, output.Body)
 	if err != nil {
-		fmt.Printf("failed to write object to file: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-
-	fmt.Println("Object downloaded successfully")
 
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -334,21 +327,4 @@ func (s *server) loads3ObjectHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Stream the file to the response
 	io.Copy(w, file)
-}
-
-func (s *server) getS3Client(ctx context.Context) (*s3.Client, error) {
-	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithRegion(customRegion),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
-			customAccessKey, customSecretKey, "",
-		)),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.BaseEndpoint = aws.String(customEndpoint)
-		o.UsePathStyle = true // Required for custom endpoints like MinIO
-	}), nil
 }

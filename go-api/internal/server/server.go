@@ -1,6 +1,7 @@
 package server
 
 import (
+	"api/internal/aws/awsshared"
 	"api/internal/database"
 	"errors"
 	"fmt"
@@ -18,17 +19,23 @@ type Server interface {
 }
 
 type server struct {
-	db database.Database
+	db        database.Database
+	awsShared awsshared.AWSShared
 }
 
 // New creates a new HTTP server
-func New(db database.Database) (Server, error) {
+func New(db database.Database, awsShared awsshared.AWSShared) (Server, error) {
 	if db == nil {
 		return nil, fmt.Errorf("Database is nil %w", errServer)
 	}
 
+	if awsShared == nil {
+		return nil, fmt.Errorf("awsShared is nil %w", errServer)
+	}
+
 	return &server{
-		db: db,
+		db:        db,
+		awsShared: awsShared,
 	}, nil
 }
 
