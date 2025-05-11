@@ -29,7 +29,8 @@ const FileUploadModal = ({ isOpen, onClose, onUploaded = () => null }) => {
         const formData = new FormData();
         formData.append('file', file);
 
-        fetch(`${process.env.REACT_APP_API_URL}/api/s3/file_upload`, {
+        fetch(`http://localhost:8080/api/s3/file_upload`, {
+//        fetch(`${process.env.REACT_APP_API_URL}/api/s3/file_upload`, {
             method: 'POST',
             body: formData,
         })
