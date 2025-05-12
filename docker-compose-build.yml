@@ -1,14 +1,14 @@
 version: "3"
 
 services:
-  laravel-app:
+  go-app:
     build:
       context: .
       dockerfile: Dockerfile
     image: localstack-dev
-    container_name: laravel-app-container
+    container_name: app-container
     ports:
-      - "80:80"
+      - "80:8080"
     networks:
       - my-stack-dev
 
