@@ -44,10 +44,12 @@ func (s *server) getSqsListHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	// List queues
 	listQueuesOutput, err := client.ListQueues(*ctx, &sqs.ListQueuesInput{})
 	if err != nil {
-		log.Fatalf("failed to list queues: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	var result []map[string]interface{}

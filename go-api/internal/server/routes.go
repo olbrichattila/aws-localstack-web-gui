@@ -27,6 +27,17 @@ func (s *server) initRoutes() {
 		s.getPostDeleteMiddleware,
 	}
 
+	// Serve files in the current directory at root
+	fs := http.FileServer(http.Dir("."))
+	http.Handle("/", fs)
+	http.Handle("/s3/", http.StripPrefix("/s3/", fs))
+	http.Handle("/sqs/", http.StripPrefix("/sqs/", fs))
+	http.Handle("/sqdynamodb/", http.StripPrefix("/sqdynamodb/", fs))
+	http.Handle("/settings/", http.StripPrefix("/settings/", fs))
+
+	// Serve files in ./static under /static
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
 	// S3 endpoints
 	http.HandleFunc(
 		"/api/health",

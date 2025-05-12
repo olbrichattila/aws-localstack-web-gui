@@ -25,8 +25,7 @@ const valueByPath = (obj, path) => {
 const handleOpenS3Object = (bucketName, fileName) => {
      const form = document.createElement('form');
      form.method = 'POST';
-     form.action = `http://localhost:8080/api/s3/load`;
-     // form.action = `${process.env.REACT_APP_API_URL}/api/s3/load`;
+     form.action = `${process.env.REACT_APP_API_URL}/api/s3/load`;
      form.target = '_blank';
      
      const dataInput1 = document.createElement('input');

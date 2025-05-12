@@ -1,9 +1,5 @@
 **/node_modules
 **/vendor
 **/frontend/node_modules
-**/frontend/build
-**/storage
-**/bootstrap/cache
-/resources/views/index.blade.php
 /database/database.sqlite
 database.sqlite

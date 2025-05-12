@@ -23,8 +23,7 @@ const request = async (type, path, payload = null) => {
     }
 
     try {
-        // const response = await fetch(`${process.env.REACT_APP_API_URL}${path}`, options);
-        const response = await fetch(`http://localhost:8080${path}`, options);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}${path}`, options);
         if (!response.ok) {
             const json = await response.json();
             const message = json.errors ? JSON.stringify(json) : 'Network response was not ok';

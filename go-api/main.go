@@ -24,6 +24,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Println("Starting server on port 8080")
 	err = server.Serve(8080)
 	if err != nil {
 		fmt.Println(err)
