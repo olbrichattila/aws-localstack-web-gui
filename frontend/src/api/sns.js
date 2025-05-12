@@ -21,7 +21,7 @@ const publish = (topicArn, message) => {
 }
 
 const subList = async (topicArn) => {
-    return get(`/api/sns/sub/${encodeURIComponent(topicArn)}}`);
+    return get(`/api/sns/sub/${encodeURIComponent(topicArn)}`);
 }
 
 const deleteSub = async (subArn) => {

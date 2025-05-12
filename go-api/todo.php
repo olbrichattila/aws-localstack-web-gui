@@ -1,0 +1,3 @@
+- Add logger to log every specific error to file to be able to debug it later
+- Cache settings, whits isModified in db so we do not fetch db every time, update isModified when new changes saved, if cached set it back
+- Add tests

@@ -27,6 +27,7 @@ func (s *server) initRoutes() {
 		s.getPostDeleteMiddleware,
 	}
 
+	// S3 endpoints
 	http.HandleFunc(
 		"/api/health",
 		s.initMiddlewares(
@@ -89,6 +90,97 @@ func (s *server) initRoutes() {
 		s.initMiddlewares(
 			s.loads3ObjectHandler,
 			s.getPostMiddleware,
+		),
+	)
+
+	// SQS endpoints
+	http.HandleFunc(
+		"/api/sqs/attributes",
+		s.initMiddlewares(
+			s.getSqsListHandler,
+			jsonGetPostDeleteMiddlewareGroup...,
+		),
+	)
+
+	http.HandleFunc(
+		"/api/sqs",
+		s.initMiddlewares(
+			s.addSqsQueueHandler,
+			jsonGetPostDeleteMiddlewareGroup...,
+		),
+	)
+
+	http.HandleFunc(
+		"/api/sqs/purge",
+		s.initMiddlewares(
+			s.purgeSqsQueueHandler,
+			jsonGetPostDeleteMiddlewareGroup..., // Should be delete only, not yet exists
+		),
+	)
+
+	http.HandleFunc(
+		"/api/sqs/message/send",
+		s.initMiddlewares(
+			s.sendMessageHandler,
+			jsonPostMiddlewareGroup...,
+		),
+	)
+
+	http.HandleFunc(
+		"/api/sqs/message/receive",
+		s.initMiddlewares(
+			s.getMessagesHandler,
+			jsonPostMiddlewareGroup...,
+		),
+	)
+
+	// SNS routes
+	http.HandleFunc(
+		"/api/sns/attributes",
+		s.initMiddlewares(
+			s.getSNSAttributes,
+			jsonGetMiddlewareGroup...,
+		),
+	)
+
+	http.HandleFunc(
+		"/api/sns",
+		s.initMiddlewares(
+			s.newTopicHandler,
+			jsonGetPostDeleteMiddlewareGroup...,
+		),
+	)
+
+	http.HandleFunc(
+		"/api/sns/",
+		s.initMiddlewares(
+			s.topicApiHandler,
+			jsonGetPostDeleteMiddlewareGroup...,
+		),
+	)
+
+	// DynamoDB routes
+	http.HandleFunc(
+		"/api/dynamodb-list/",
+		s.initMiddlewares(
+			s.getDynamoDBTables,
+			jsonGetMiddlewareGroup...,
+		),
+	)
+
+	http.HandleFunc(
+		"/api/dynamodb",
+		s.initMiddlewares(
+			s.handleDynamoDBTable,
+			jsonGetPostDeleteMiddlewareGroup...,
+		),
+	)
+
+	http.HandleFunc(
+		"/api/dynamodb/",
+		s.initMiddlewares(
+			s.handleDynamoDBTable,
+			jsonGetPostDeleteMiddlewareGroup...,
 		),
 	)
 

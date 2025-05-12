@@ -9,7 +9,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 )
 
 func New(db database.Database) AWSShared {
@@ -21,6 +24,9 @@ func New(db database.Database) AWSShared {
 type AWSShared interface {
 	GetConfig() (*aws.Config, *context.Context, domain.Setting, error)
 	GetS3Client() (*s3.Client, *context.Context, error)
+	GetSQSClient() (*sqs.Client, *context.Context, error)
+	GetSNSClient() (*sns.Client, *context.Context, error)
+	GetDynamoDBClient() (*dynamodb.Client, *context.Context, error)
 }
 
 type awsshared struct {
@@ -57,5 +63,39 @@ func (s *awsshared) GetS3Client() (*s3.Client, *context.Context, error) {
 	return s3.NewFromConfig(*cfg, func(o *s3.Options) {
 		o.BaseEndpoint = aws.String(setting.Endpoint)
 		o.UsePathStyle = true
+	}), ctx, nil
+}
+
+// Implement GetSQSClient
+func (s *awsshared) GetSQSClient() (*sqs.Client, *context.Context, error) {
+	cfg, ctx, setting, err := s.GetConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return sqs.NewFromConfig(*cfg, func(o *sqs.Options) {
+		o.BaseEndpoint = aws.String(setting.Endpoint)
+	}), ctx, nil
+}
+
+func (s *awsshared) GetSNSClient() (*sns.Client, *context.Context, error) {
+	cfg, ctx, setting, err := s.GetConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return sns.NewFromConfig(*cfg, func(o *sns.Options) {
+		o.BaseEndpoint = aws.String(setting.Endpoint)
+	}), ctx, nil
+}
+
+func (s *awsshared) GetDynamoDBClient() (*dynamodb.Client, *context.Context, error) {
+	cfg, ctx, setting, err := s.GetConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return dynamodb.NewFromConfig(*cfg, func(o *dynamodb.Options) {
+		o.BaseEndpoint = aws.String(setting.Endpoint)
 	}), ctx, nil
 }
