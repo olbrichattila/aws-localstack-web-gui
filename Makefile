@@ -13,6 +13,7 @@ run-rebuild-image:
 stop:
 	docker-compose -f ./docker-compose-build.yml stop
 deploy:
+	cd frontend && npm run build
 	docker build -t localstack-web-ui .
 	docker tag localstack-web-ui:latest aolb/localstack-web-ui:latest
 	docker push aolb/localstack-web-ui:latest
