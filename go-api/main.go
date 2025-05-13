@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+const runPort = 80
+
 func main() {
 	db, err := database.New()
 	if err != nil {
@@ -24,8 +26,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Starting server on port 80")
-	err = server.Serve(80)
+	fmt.Printf("Starting server on port %d\n", runPort)
+	err = server.Serve(runPort)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

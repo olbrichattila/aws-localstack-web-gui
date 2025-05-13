@@ -14,6 +14,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
+const (
+	uploadDirPath   = "./uploads/"
+	downloadDirPath = "./downloads/"
+)
+
 type s3BucketRequest struct {
 	Name string `json:"bucketName"`
 }
@@ -190,12 +195,16 @@ func (s *server) uploadToS3Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := os.Open("./uploads/" + req.FileName)
+	file, err := os.Open(uploadDirPath + req.FileName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
+
+	defer func() {
+		file.Close()
+		os.Remove(uploadDirPath + req.FileName)
+	}()
 
 	_, err = s3Client.PutObject(*ctx, &s3.PutObjectInput{
 		Bucket: aws.String(req.BucketName),
@@ -225,8 +234,14 @@ func (s *server) uploadToServerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
+	err = os.MkdirAll(uploadDirPath, 0755)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	// Create a destination file
-	dst, err := os.Create("./uploads/" + handler.Filename)
+	dst, err := os.Create(uploadDirPath + handler.Filename)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -290,8 +305,14 @@ func (s *server) loads3ObjectHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer output.Body.Close()
 
+	err = os.MkdirAll(downloadDirPath, 0755)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	// Create a local file
-	filePath := "./downloads/" + fileName
+	filePath := downloadDirPath + fileName
 	outFile, err := os.Create(filePath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -311,7 +332,11 @@ func (s *server) loads3ObjectHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "File not found.", http.StatusNotFound)
 		return
 	}
-	defer file.Close()
+
+	defer func() {
+		file.Close()
+		os.Remove(filePath)
+	}()
 
 	// Get the filename from the path
 	downloadFileName := filepath.Base(filePath)
