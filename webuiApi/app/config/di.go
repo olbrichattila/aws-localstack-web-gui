@@ -1,0 +1,20 @@
+package appconfig
+
+import (
+	"webuiApi/app/repositories/awsshared"
+	"webuiApi/app/repositories/database"
+
+	"github.com/olbrichattila/godi"
+	"github.com/olbrichattila/gofra/pkg/app/config"
+)
+
+var DiBindings = []config.DiCallback{
+	func(di godi.Container) (string, interface{}, error) {
+		db, err := database.New()
+		return "app.repositories.database.Database", db, err
+	},
+	func(di godi.Container) (string, interface{}, error) {
+		awsshared := awsshared.New()
+		return "app.repositories.awsshared.AWSShared", awsshared, nil
+	},
+}

@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS settings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    region VARCHAR(64) NOT NULL,
+    endpoint TEXT NOT NULL,
+    "key" VARCHAR(255) NOT NULL,
+    secret VARCHAR(255) NOT NULL
+)
