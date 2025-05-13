@@ -18,7 +18,7 @@ function App() {
     <BrowserRouter>
     <div className="App">
       <header className="App-header">
-        AWS Localstack manager / V1.0002
+        AWS Localstack manager / V1.0003
       </header>
       <div className="main-wrapper">
         <div className="left-menu">
