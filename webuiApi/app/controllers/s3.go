@@ -2,8 +2,11 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"path/filepath"
 	"webuiApi/app/repositories/awsshared"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -172,6 +175,102 @@ func FileUploadToS3(r request.Requester, awsShared awsshared.AWSShared) (string,
 		Bucket: aws.String(req.BucketName),
 		Key:    aws.String(req.FileName),
 		Body:   file,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return getBucketContent(awsShared, req.BucketName)
+}
+
+// ViewFile function can take any parameters defined in the Di config
+func ViewFile(w http.ResponseWriter, req request.Requester, awsShared awsshared.AWSShared) {
+	r := req.GetRequest()
+	bucketName := r.FormValue("bucketName")
+	fileName := r.FormValue("fileName")
+
+	s3Client, ctx, err := awsShared.GetS3Client()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Get the object
+	output, err := s3Client.GetObject(*ctx, &s3.GetObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(fileName),
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer output.Body.Close()
+
+	err = os.MkdirAll(downloadDirPath, 0755)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Create a local file
+	filePath := downloadDirPath + fileName
+	outFile, err := os.Create(filePath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer outFile.Close()
+
+	// Copy S3 object to file
+	_, err = io.Copy(outFile, output.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		http.Error(w, "File not found.", http.StatusNotFound)
+		return
+	}
+
+	defer func() {
+		file.Close()
+		os.Remove(filePath)
+	}()
+
+	// Get the filename from the path
+	downloadFileName := filepath.Base(filePath)
+
+	// Set headers to force download
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+downloadFileName+"\"")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+
+	// Optionally, set content length
+	stat, _ := file.Stat()
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
+
+	// Stream the file to the response
+	io.Copy(w, file)
+}
+
+// DeleteFile function can take any parameters defined in the Di config
+func DeleteFile(w http.ResponseWriter, r request.Requester, awsShared awsshared.AWSShared) (string, error) {
+	var req s3UploadRequest
+	if err := json.Unmarshal([]byte(r.Body()), &req); err != nil {
+		return "", err
+	}
+
+	s3Client, ctx, err := awsShared.GetS3Client()
+	if err != nil {
+		return "", err
+	}
+
+	// Delete object
+	_, err = s3Client.DeleteObject(*ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(req.BucketName),
+		Key:    aws.String(req.FileName),
 	})
 	if err != nil {
 		return "", err

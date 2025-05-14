@@ -36,6 +36,11 @@ var Routes = []router.ControllerAction{
 		Fn:          controller.DeleteBucketAction,
 	},
 	{
+		Path:        "/api/s3/buckets",
+		RequestType: http.MethodDelete,
+		Fn:          controller.DeleteBucketAction,
+	},
+	{
 		Path:        "/api/s3/list/:bucketName",
 		RequestType: http.MethodOptions,
 		Fn:          func() {},
@@ -59,6 +64,21 @@ var Routes = []router.ControllerAction{
 		Path:        "/api/s3/buckets/upload",
 		RequestType: http.MethodPost,
 		Fn:          controller.FileUploadToS3,
+	},
+	{
+		Path:        "/api/s3/load",
+		RequestType: http.MethodPost,
+		Fn:          controller.ViewFile,
+	},
+	{
+		Path:        "/api/s3/buckets/delete/object",
+		RequestType: http.MethodOptions,
+		Fn:          func() {},
+	},
+	{
+		Path:        "/api/s3/buckets/delete/object",
+		RequestType: http.MethodDelete,
+		Fn:          controller.DeleteFile,
 	},
 	{
 		Path:        "/api/settings",
