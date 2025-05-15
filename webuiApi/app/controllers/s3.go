@@ -45,12 +45,7 @@ func ListBucketsAction(awsShared awsshared.AWSShared) (string, error) {
 }
 
 // CreateBucketAction function can take any parameters defined in the Di config
-func CreateBucketAction(awsShared awsshared.AWSShared, r request.Requester) (string, error) {
-	var req s3BucketRequest
-	if err := json.Unmarshal([]byte(r.Body()), &req); err != nil {
-		return "", err
-	}
-
+func CreateBucketAction(req s3BucketRequest, awsShared awsshared.AWSShared) (string, error) {
 	s3Client, ctx, err := awsShared.GetS3Client()
 	if err != nil {
 		return "", err
@@ -66,12 +61,7 @@ func CreateBucketAction(awsShared awsshared.AWSShared, r request.Requester) (str
 }
 
 // DeleteBucketAction function can take any parameters defined in the Di config
-func DeleteBucketAction(awsShared awsshared.AWSShared, r request.Requester) (string, error) {
-	var req s3BucketRequest
-	if err := json.Unmarshal([]byte(r.Body()), &req); err != nil {
-		return "", err
-	}
-
+func DeleteBucketAction(req s3BucketRequest, awsShared awsshared.AWSShared) (string, error) {
 	s3Client, ctx, err := awsShared.GetS3Client()
 	if err != nil {
 		return "", err
@@ -150,12 +140,7 @@ func FileUpload(req request.Requester, awsShared awsshared.AWSShared) (string, e
 }
 
 // FileUploadToS3 function can take any parameters defined in the Di config
-func FileUploadToS3(r request.Requester, awsShared awsshared.AWSShared) (string, error) {
-	var req s3UploadRequest
-	if err := json.Unmarshal([]byte(r.Body()), &req); err != nil {
-		return "", err
-	}
-
+func FileUploadToS3(req s3UploadRequest, awsShared awsshared.AWSShared) (string, error) {
 	s3Client, ctx, err := awsShared.GetS3Client()
 	if err != nil {
 		return "", err
@@ -256,12 +241,7 @@ func ViewFile(w http.ResponseWriter, req request.Requester, awsShared awsshared.
 }
 
 // DeleteFile function can take any parameters defined in the Di config
-func DeleteFile(w http.ResponseWriter, r request.Requester, awsShared awsshared.AWSShared) (string, error) {
-	var req s3UploadRequest
-	if err := json.Unmarshal([]byte(r.Body()), &req); err != nil {
-		return "", err
-	}
-
+func DeleteFile(req s3UploadRequest, w http.ResponseWriter, awsShared awsshared.AWSShared) (string, error) {
 	s3Client, ctx, err := awsShared.GetS3Client()
 	if err != nil {
 		return "", err

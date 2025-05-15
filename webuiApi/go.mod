@@ -10,7 +10,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.79.3
 	github.com/aws/aws-sdk-go-v2/service/sns v1.34.4
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.5
-	github.com/olbrichattila/gofra v1.0.2
+	github.com/mattn/go-sqlite3 v1.14.23
+	github.com/olbrichattila/godi v1.0.18
+	github.com/olbrichattila/gofra v1.0.4
 )
 
 require (
@@ -39,10 +41,8 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
-	github.com/mattn/go-sqlite3 v1.14.23 // indirect
 	github.com/nakagami/firebirdsql v0.9.11 // indirect
 	github.com/olbrichattila/godbmigrator v1.1.16 // indirect
-	github.com/olbrichattila/godi v1.0.18 // indirect
 	github.com/olbrichattila/gosqlbuilder v1.0.5 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
