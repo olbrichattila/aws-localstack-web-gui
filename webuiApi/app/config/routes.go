@@ -23,22 +23,26 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/s3/buckets",
 		RequestType: http.MethodGet,
-		Fn:          controller.ListBucketsAction,
+		Controller:  func() any { return &controller.S3Controller{} },
+		ActionName:  "ListBucketsAction",
 	},
 	{
 		Path:        "/api/s3/buckets",
 		RequestType: http.MethodPost,
-		Fn:          controller.CreateBucketAction,
+		Controller:  func() any { return &controller.S3Controller{} },
+		ActionName:  "CreateBucketAction",
 	},
 	{
 		Path:        "/api/s3/buckets",
 		RequestType: http.MethodDelete,
-		Fn:          controller.DeleteBucketAction,
+		Controller:  func() any { return &controller.S3Controller{} },
+		ActionName:  "DeleteBucketAction",
 	},
 	{
 		Path:        "/api/s3/buckets",
 		RequestType: http.MethodDelete,
-		Fn:          controller.DeleteBucketAction,
+		Controller:  func() any { return &controller.S3Controller{} },
+		ActionName:  "DeleteBucketAction",
 	},
 	{
 		Path:        "/api/s3/list/:bucketName",
@@ -48,12 +52,14 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/s3/list/:bucketName",
 		RequestType: http.MethodGet,
-		Fn:          controller.GetBucketContent,
+		Controller:  func() any { return &controller.S3Controller{} },
+		ActionName:  "GetBucketContent",
 	},
 	{
 		Path:        "/api/s3/file_upload",
 		RequestType: http.MethodPost,
-		Fn:          controller.FileUpload,
+		Controller:  func() any { return &controller.S3Controller{} },
+		ActionName:  "FileUpload",
 	},
 	{
 		Path:        "/api/s3/buckets/upload",
@@ -63,12 +69,14 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/s3/buckets/upload",
 		RequestType: http.MethodPost,
-		Fn:          controller.FileUploadToS3,
+		Controller:  func() any { return &controller.S3Controller{} },
+		ActionName:  "FileUploadToS3",
 	},
 	{
 		Path:        "/api/s3/load",
 		RequestType: http.MethodPost,
-		Fn:          controller.ViewFile,
+		Controller:  func() any { return &controller.S3Controller{} },
+		ActionName:  "ViewFile",
 	},
 	{
 		Path:        "/api/s3/buckets/delete/object",
@@ -78,7 +86,8 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/s3/buckets/delete/object",
 		RequestType: http.MethodDelete,
-		Fn:          controller.DeleteFile,
+		Controller:  func() any { return &controller.S3Controller{} },
+		ActionName:  "DeleteFile",
 	},
 	{
 		Path:        "/api/settings",
@@ -97,7 +106,7 @@ var Routes = []router.ControllerAction{
 		// Middlewares: []any{middleware.CorsMiddleware},
 	},
 
-	// SQL
+	// SQS
 	{
 		Path:        "/api/sqs/attributes",
 		RequestType: http.MethodOptions,
@@ -106,12 +115,14 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/sqs/attributes",
 		RequestType: http.MethodGet,
-		Fn:          controller.SQSGetAttributesAction,
+		Controller:  func() any { return &controller.SQSController{} },
+		ActionName:  "SQSGetAttributesAction",
 	},
 	{
 		Path:        "/api/sqs/attributes",
 		RequestType: http.MethodPost,
-		Fn:          controller.SQSGetAttributeAction,
+		Controller:  func() any { return &controller.SQSController{} },
+		ActionName:  "SQSGetAttributeAction",
 	},
 	{
 		Path:        "/api/sqs",
@@ -121,12 +132,14 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/sqs",
 		RequestType: http.MethodPost,
-		Fn:          controller.SQSCreateQueueAction,
+		Controller:  func() any { return &controller.SQSController{} },
+		ActionName:  "SQSCreateQueueAction",
 	},
 	{
 		Path:        "/api/sqs",
 		RequestType: http.MethodDelete,
-		Fn:          controller.SQSDeleteQueueAction,
+		Controller:  func() any { return &controller.SQSController{} },
+		ActionName:  "SQSDeleteQueueAction",
 	},
 	{
 		Path:        "/api/sqs/purge",
@@ -136,7 +149,8 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/sqs/purge",
 		RequestType: http.MethodDelete,
-		Fn:          controller.SQSPurgeQueueAction,
+		Controller:  func() any { return &controller.SQSController{} },
+		ActionName:  "SQSPurgeQueueAction",
 	},
 	{
 		Path:        "/api/sqs/message/send",
@@ -146,7 +160,8 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/sqs/message/send",
 		RequestType: http.MethodPost,
-		Fn:          controller.SQSendMessageAction,
+		Controller:  func() any { return &controller.SQSController{} },
+		ActionName:  "SQSendMessageAction",
 	},
 	{
 		Path:        "/api/sqs/message/receive",
@@ -156,7 +171,8 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/sqs/message/receive",
 		RequestType: http.MethodPost,
-		Fn:          controller.SQSReceiveMessages,
+		Controller:  func() any { return &controller.SQSController{} },
+		ActionName:  "SQSReceiveMessages",
 	},
 
 	// SNS
@@ -168,7 +184,8 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/sns/attributes",
 		RequestType: http.MethodGet,
-		Fn:          controller.SNSGetAttributes,
+		Controller:  func() any { return &controller.SNSController{} },
+		ActionName:  "SNSGetAttributes",
 	},
 	{
 		Path:        "/api/sns",
@@ -178,12 +195,14 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/sns",
 		RequestType: http.MethodPost,
-		Fn:          controller.SNSCreateTopic,
+		Controller:  func() any { return &controller.SNSController{} },
+		ActionName:  "SNSCreateTopic",
 	},
 	{
 		Path:        "/api/sns",
 		RequestType: http.MethodDelete,
-		Fn:          controller.SNSDeleteTopic,
+		Controller:  func() any { return &controller.SNSController{} },
+		ActionName:  "SNSDeleteTopic",
 	},
 	{
 		Path:        "/api/sns/sub/:arn/publish",
@@ -193,7 +212,8 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/sns/sub/:arn/publish",
 		RequestType: http.MethodPost,
-		Fn:          controller.SNSPublishToTopicARN,
+		Controller:  func() any { return &controller.SNSController{} },
+		ActionName:  "SNSPublishToTopicARN",
 	},
 	{
 		Path:        "/api/sns/sub/:arn",
@@ -203,17 +223,20 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/sns/sub/:arn",
 		RequestType: http.MethodGet,
-		Fn:          controller.SNSGetSubscriptionsByARN,
+		Controller:  func() any { return &controller.SNSController{} },
+		ActionName:  "SNSGetSubscriptionsByARN",
 	},
 	{
 		Path:        "/api/sns/sub/:arn",
 		RequestType: http.MethodPost,
-		Fn:          controller.SNSCreateSubscriptionForARN,
+		Controller:  func() any { return &controller.SNSController{} },
+		ActionName:  "SNSCreateSubscriptionForARN",
 	},
 	{
 		Path:        "/api/sns/sub/:arn",
 		RequestType: http.MethodDelete,
-		Fn:          controller.SNSDeleteSubscriptionByARN,
+		Controller:  func() any { return &controller.SNSController{} },
+		ActionName:  "SNSDeleteSubscriptionByARN",
 	},
 
 	// DynamoDB
@@ -225,7 +248,8 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/dynamodb-list/:itemCount",
 		RequestType: http.MethodGet,
-		Fn:          controller.DynamoDBListTables,
+		Controller:  func() any { return &controller.DynamoDBController{} },
+		ActionName:  "DynamoDBListTables",
 	},
 	{
 		Path:        "/api/dynamodb-list/:itemCount/:exclusiveStartTable",
@@ -235,7 +259,8 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/dynamodb-list/:itemCount/:exclusiveStartTable",
 		RequestType: http.MethodGet,
-		Fn:          controller.DynamoDBListTablesWithStartTable,
+		Controller:  func() any { return &controller.DynamoDBController{} },
+		ActionName:  "DynamoDBListTablesWithStartTable",
 	},
 	{
 		Path:        "/api/dynamodb",
@@ -245,9 +270,9 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/dynamodb",
 		RequestType: http.MethodPost,
-		Fn:          controller.DynamoDBNewTable,
+		Controller:  func() any { return &controller.DynamoDBController{} },
+		ActionName:  "DynamoDBNewTable",
 	},
-
 	{
 		Path:        "/api/dynamodb/:tableName",
 		RequestType: http.MethodOptions,
@@ -256,6 +281,7 @@ var Routes = []router.ControllerAction{
 	{
 		Path:        "/api/dynamodb/:tableName",
 		RequestType: http.MethodDelete,
-		Fn:          controller.DynamoDBDeleteTable,
+		Controller:  func() any { return &controller.DynamoDBController{} },
+		ActionName:  "DynamoDBDeleteTable",
 	},
 }

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,6 +14,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/olbrichattila/gofra/pkg/app/request"
 )
+
+type S3Controller struct {
+	s3Client *s3.Client
+	ctx      *context.Context
+}
 
 const (
 	uploadDirPath   = "./uploads/"
@@ -28,14 +34,15 @@ type s3UploadRequest struct {
 	FileName   string `json:"fileName"`
 }
 
-// ListBucketsAction function can take any parameters defined in the Di config
-func ListBucketsAction(awsShared awsshared.AWSShared) (string, error) {
-	s3Client, ctx, err := awsShared.GetS3Client()
-	if err != nil {
-		return "", err
-	}
+func (s *S3Controller) Before(awsShared awsshared.AWSShared) {
+	// TODO ADD error handling
+	s.s3Client, s.ctx, _ = awsShared.GetS3Client()
 
-	output, err := s3Client.ListBuckets(*ctx, &s3.ListBucketsInput{})
+}
+
+// ListBucketsAction function can take any parameters defined in the Di config
+func (s *S3Controller) ListBucketsAction() (string, error) {
+	output, err := s.s3Client.ListBuckets(*s.ctx, &s3.ListBucketsInput{})
 	if err != nil {
 		return "", err
 	}
@@ -45,51 +52,36 @@ func ListBucketsAction(awsShared awsshared.AWSShared) (string, error) {
 }
 
 // CreateBucketAction function can take any parameters defined in the Di config
-func CreateBucketAction(req s3BucketRequest, awsShared awsshared.AWSShared) (string, error) {
-	s3Client, ctx, err := awsShared.GetS3Client()
-	if err != nil {
-		return "", err
-	}
-
-	if _, err := s3Client.CreateBucket(*ctx, &s3.CreateBucketInput{
+func (s *S3Controller) CreateBucketAction(req s3BucketRequest) (string, error) {
+	if _, err := s.s3Client.CreateBucket(*s.ctx, &s3.CreateBucketInput{
 		Bucket: aws.String(req.Name),
 	}); err != nil {
 		return "", err
 	}
 
-	return ListBucketsAction(awsShared)
+	return s.ListBucketsAction()
 }
 
 // DeleteBucketAction function can take any parameters defined in the Di config
-func DeleteBucketAction(req s3BucketRequest, awsShared awsshared.AWSShared) (string, error) {
-	s3Client, ctx, err := awsShared.GetS3Client()
-	if err != nil {
-		return "", err
-	}
-
-	if _, err := s3Client.DeleteBucket(*ctx, &s3.DeleteBucketInput{
+func (s *S3Controller) DeleteBucketAction(req s3BucketRequest) (string, error) {
+	if _, err := s.s3Client.DeleteBucket(*s.ctx, &s3.DeleteBucketInput{
 		Bucket: aws.String(req.Name),
 	}); err != nil {
 		return "", err
 	}
 
-	return ListBucketsAction(awsShared)
+	return s.ListBucketsAction()
 }
 
 // GetBucketContent function can take any parameters defined in the Di config
-func GetBucketContent(r request.Requester, awsShared awsshared.AWSShared) (string, error) {
+func (s *S3Controller) GetBucketContent(r request.Requester) (string, error) {
 	bucketName := r.GetOne("bucketName", "")
 
-	return getBucketContent(awsShared, bucketName)
+	return s.getBucketContent(bucketName)
 }
 
-func getBucketContent(awsShared awsshared.AWSShared, bucketName string) (string, error) {
-	s3Client, ctx, err := awsShared.GetS3Client()
-	if err != nil {
-		return "", err
-	}
-
-	output, err := s3Client.ListObjects(*ctx, &s3.ListObjectsInput{
+func (s *S3Controller) getBucketContent(bucketName string) (string, error) {
+	output, err := s.s3Client.ListObjects(*s.ctx, &s3.ListObjectsInput{
 		Bucket: aws.String(bucketName),
 	})
 
@@ -102,7 +94,7 @@ func getBucketContent(awsShared awsshared.AWSShared, bucketName string) (string,
 }
 
 // FileUpload function can take any parameters defined in the Di config
-func FileUpload(req request.Requester, awsShared awsshared.AWSShared) (string, error) {
+func (s *S3Controller) FileUpload(req request.Requester) (string, error) {
 	r := req.GetRequest()
 	err := r.ParseMultipartForm(10 << 20) // 10MB
 	if err != nil {
@@ -140,12 +132,7 @@ func FileUpload(req request.Requester, awsShared awsshared.AWSShared) (string, e
 }
 
 // FileUploadToS3 function can take any parameters defined in the Di config
-func FileUploadToS3(req s3UploadRequest, awsShared awsshared.AWSShared) (string, error) {
-	s3Client, ctx, err := awsShared.GetS3Client()
-	if err != nil {
-		return "", err
-	}
-
+func (s *S3Controller) FileUploadToS3(req s3UploadRequest) (string, error) {
 	file, err := os.Open(uploadDirPath + req.FileName)
 	if err != nil {
 		return "", err
@@ -156,7 +143,7 @@ func FileUploadToS3(req s3UploadRequest, awsShared awsshared.AWSShared) (string,
 		os.Remove(uploadDirPath + req.FileName)
 	}()
 
-	_, err = s3Client.PutObject(*ctx, &s3.PutObjectInput{
+	_, err = s.s3Client.PutObject(*s.ctx, &s3.PutObjectInput{
 		Bucket: aws.String(req.BucketName),
 		Key:    aws.String(req.FileName),
 		Body:   file,
@@ -165,23 +152,17 @@ func FileUploadToS3(req s3UploadRequest, awsShared awsshared.AWSShared) (string,
 		return "", err
 	}
 
-	return getBucketContent(awsShared, req.BucketName)
+	return s.getBucketContent(req.BucketName)
 }
 
 // ViewFile function can take any parameters defined in the Di config
-func ViewFile(w http.ResponseWriter, req request.Requester, awsShared awsshared.AWSShared) {
+func (s *S3Controller) ViewFile(w http.ResponseWriter, req request.Requester) {
 	r := req.GetRequest()
 	bucketName := r.FormValue("bucketName")
 	fileName := r.FormValue("fileName")
 
-	s3Client, ctx, err := awsShared.GetS3Client()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	// Get the object
-	output, err := s3Client.GetObject(*ctx, &s3.GetObjectInput{
+	output, err := s.s3Client.GetObject(*s.ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(fileName),
 	})
@@ -241,14 +222,10 @@ func ViewFile(w http.ResponseWriter, req request.Requester, awsShared awsshared.
 }
 
 // DeleteFile function can take any parameters defined in the Di config
-func DeleteFile(req s3UploadRequest, w http.ResponseWriter, awsShared awsshared.AWSShared) (string, error) {
-	s3Client, ctx, err := awsShared.GetS3Client()
-	if err != nil {
-		return "", err
-	}
+func (s *S3Controller) DeleteFile(req s3UploadRequest, w http.ResponseWriter) (string, error) {
 
 	// Delete object
-	_, err = s3Client.DeleteObject(*ctx, &s3.DeleteObjectInput{
+	_, err := s.s3Client.DeleteObject(*s.ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(req.BucketName),
 		Key:    aws.String(req.FileName),
 	})
@@ -256,5 +233,5 @@ func DeleteFile(req s3UploadRequest, w http.ResponseWriter, awsShared awsshared.
 		return "", err
 	}
 
-	return getBucketContent(awsShared, req.BucketName)
+	return s.getBucketContent(req.BucketName)
 }

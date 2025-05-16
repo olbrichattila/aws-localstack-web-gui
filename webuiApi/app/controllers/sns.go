@@ -10,6 +10,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 )
 
+type SNSController struct {
+	client *sns.Client
+	ctx    *context.Context
+}
+
 type topicRequest struct {
 	Name string `json:"name"`
 }
@@ -22,21 +27,21 @@ type topicSubscribeRequest struct {
 	Url string `json:"url"`
 }
 
-// SnsAction function can take any parameters defined in the Di config
-func SNSGetAttributes(awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSNSClient()
-	if err != nil {
-		return "", err
-	}
+func (c *SNSController) Before(awsShared awsshared.AWSShared) {
+	// TODO handle error
+	c.client, c.ctx, _ = awsShared.GetSNSClient()
+}
 
-	topics, err := client.ListTopics(*ctx, &sns.ListTopicsInput{})
+// SnsAction function can take any parameters defined in the Di config
+func (c *SNSController) SNSGetAttributes() (string, error) {
+	topics, err := c.client.ListTopics(*c.ctx, &sns.ListTopicsInput{})
 	if err != nil {
 		return "", err
 	}
 
 	response := make([]map[string]string, len(topics.Topics))
 	for i, topic := range topics.Topics {
-		attrs, err := getSNSAttribute(client, ctx, *topic.TopicArn)
+		attrs, err := c.getSNSAttribute(c.client, c.ctx, *topic.TopicArn)
 		if err != nil {
 			return "", err
 		}
@@ -52,7 +57,7 @@ func SNSGetAttributes(awsShared awsshared.AWSShared) (string, error) {
 	return string(res), nil
 }
 
-func getSNSAttribute(client *sns.Client, ctx *context.Context, topicUrl string) (map[string]string, error) {
+func (c *SNSController) getSNSAttribute(client *sns.Client, ctx *context.Context, topicUrl string) (map[string]string, error) {
 	attrsOutput, err := client.GetTopicAttributes(*ctx, &sns.GetTopicAttributesInput{
 		TopicArn: aws.String(topicUrl),
 	})
@@ -63,13 +68,8 @@ func getSNSAttribute(client *sns.Client, ctx *context.Context, topicUrl string) 
 	return attrsOutput.Attributes, nil
 }
 
-func SNSCreateTopic(req topicRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSNSClient()
-	if err != nil {
-		return "", err
-	}
-
-	_, err = client.CreateTopic(*ctx, &sns.CreateTopicInput{
+func (c *SNSController) SNSCreateTopic(req topicRequest) (string, error) {
+	_, err := c.client.CreateTopic(*c.ctx, &sns.CreateTopicInput{
 		Name: &req.Name,
 	})
 
@@ -77,16 +77,11 @@ func SNSCreateTopic(req topicRequest, awsShared awsshared.AWSShared) (string, er
 		return "", err
 	}
 
-	return SNSGetAttributes(awsShared)
+	return c.SNSGetAttributes()
 }
 
-func SNSDeleteTopic(req topicRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSNSClient()
-	if err != nil {
-		return "", err
-	}
-
-	_, err = client.DeleteTopic(*ctx, &sns.DeleteTopicInput{
+func (c *SNSController) SNSDeleteTopic(req topicRequest) (string, error) {
+	_, err := c.client.DeleteTopic(*c.ctx, &sns.DeleteTopicInput{
 		TopicArn: aws.String(req.Name),
 	})
 
@@ -94,16 +89,11 @@ func SNSDeleteTopic(req topicRequest, awsShared awsshared.AWSShared) (string, er
 		return "", err
 	}
 
-	return SNSGetAttributes(awsShared)
+	return c.SNSGetAttributes()
 }
 
-func SNSPublishToTopicARN(topicArn string, req topicMessageRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSNSClient()
-	if err != nil {
-		return "", err
-	}
-
-	_, err = client.Publish(*ctx, &sns.PublishInput{
+func (c *SNSController) SNSPublishToTopicARN(topicArn string, req topicMessageRequest) (string, error) {
+	_, err := c.client.Publish(*c.ctx, &sns.PublishInput{
 		Message:  &req.Message,
 		TopicArn: aws.String(topicArn),
 	})
@@ -115,13 +105,8 @@ func SNSPublishToTopicARN(topicArn string, req topicMessageRequest, awsShared aw
 	return "{}", nil
 }
 
-func SNSGetSubscriptionsByARN(topicArn string, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSNSClient()
-	if err != nil {
-		return "", err
-	}
-
-	topics, err := client.ListSubscriptionsByTopic(*ctx, &sns.ListSubscriptionsByTopicInput{
+func (c *SNSController) SNSGetSubscriptionsByARN(topicArn string) (string, error) {
+	topics, err := c.client.ListSubscriptionsByTopic(*c.ctx, &sns.ListSubscriptionsByTopicInput{
 		TopicArn: aws.String(topicArn),
 	})
 
@@ -137,19 +122,14 @@ func SNSGetSubscriptionsByARN(topicArn string, awsShared awsshared.AWSShared) (s
 	return string(res), nil
 }
 
-func SNSCreateSubscriptionForARN(topicArn string, req topicSubscribeRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSNSClient()
-	if err != nil {
-		return "", err
-	}
-
+func (c *SNSController) SNSCreateSubscriptionForARN(topicArn string, req topicSubscribeRequest) (string, error) {
 	parsedUrl, err := url.Parse(req.Url)
 	if err != nil {
 		return "", err
 	}
 
 	protocol := parsedUrl.Scheme
-	_, err = client.Subscribe(*ctx, &sns.SubscribeInput{
+	_, err = c.client.Subscribe(*c.ctx, &sns.SubscribeInput{
 		Protocol: aws.String(protocol),
 		TopicArn: aws.String(topicArn),
 		Endpoint: aws.String(req.Url),
@@ -159,7 +139,7 @@ func SNSCreateSubscriptionForARN(topicArn string, req topicSubscribeRequest, aws
 		return "", err
 	}
 
-	topics, err := client.ListSubscriptionsByTopic(*ctx, &sns.ListSubscriptionsByTopicInput{
+	topics, err := c.client.ListSubscriptionsByTopic(*c.ctx, &sns.ListSubscriptionsByTopicInput{
 		TopicArn: aws.String(topicArn),
 	})
 
@@ -175,15 +155,13 @@ func SNSCreateSubscriptionForARN(topicArn string, req topicSubscribeRequest, aws
 	return string(result), nil
 }
 
-func SNSDeleteSubscriptionByARN(topicArn string, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSNSClient()
+func (c *SNSController) SNSDeleteSubscriptionByARN(topicArn string) (string, error) {
+	_, err := c.client.Unsubscribe(*c.ctx, &sns.UnsubscribeInput{
+		SubscriptionArn: aws.String(topicArn),
+	})
 	if err != nil {
 		return "", err
 	}
-
-	_, err = client.Unsubscribe(*ctx, &sns.UnsubscribeInput{
-		SubscriptionArn: aws.String(topicArn),
-	})
 
 	return "{}", nil
 }

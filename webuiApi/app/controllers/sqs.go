@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"strconv"
@@ -10,6 +11,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 )
+
+type SQSController struct {
+	client *sqs.Client
+	ctx    *context.Context
+}
 
 type sqsAddQueueRequest struct {
 	QueueName          string `json:"name"`
@@ -32,14 +38,13 @@ type sqsReadMessageRequest struct {
 	MaxNumberOfMessages int    `json:"maxNumberOfMessages"`
 }
 
-func SQSGetAttributesAction(awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSQSClient()
-	if err != nil {
-		return "", err
-	}
+func (s *SQSController) Before(awsShared awsshared.AWSShared) {
+	// TODO do error handling
+	s.client, s.ctx, _ = awsShared.GetSQSClient()
+}
 
-	// List queues
-	listQueuesOutput, err := client.ListQueues(*ctx, &sqs.ListQueuesInput{})
+func (s *SQSController) SQSGetAttributesAction() (string, error) {
+	listQueuesOutput, err := s.client.ListQueues(*s.ctx, &sqs.ListQueuesInput{})
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +53,7 @@ func SQSGetAttributesAction(awsShared awsshared.AWSShared) (string, error) {
 
 	for _, queueUrl := range listQueuesOutput.QueueUrls {
 		// Get attributes for each queue
-		attrsOutput, err := client.GetQueueAttributes(*ctx, &sqs.GetQueueAttributesInput{
+		attrsOutput, err := s.client.GetQueueAttributes(*s.ctx, &sqs.GetQueueAttributesInput{
 			QueueUrl: aws.String(queueUrl),
 			AttributeNames: []types.QueueAttributeName{
 				types.QueueAttributeNameAll,
@@ -80,13 +85,8 @@ func SQSGetAttributesAction(awsShared awsshared.AWSShared) (string, error) {
 	return string(res), nil
 }
 
-func SQSCreateQueueAction(req sqsAddQueueRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSQSClient()
-	if err != nil {
-		return "", err
-	}
-
-	_, err = client.CreateQueue(*ctx, &sqs.CreateQueueInput{
+func (s *SQSController) SQSCreateQueueAction(req sqsAddQueueRequest) (string, error) {
+	_, err := s.client.CreateQueue(*s.ctx, &sqs.CreateQueueInput{
 		QueueName: &req.QueueName,
 		Attributes: map[string]string{
 			string(types.QueueAttributeNameVisibilityTimeout):  strconv.Itoa(req.DelaySeconds),
@@ -97,32 +97,23 @@ func SQSCreateQueueAction(req sqsAddQueueRequest, awsShared awsshared.AWSShared)
 		return "", nil
 	}
 
-	return SQSGetAttributesAction(awsShared)
+	return s.SQSGetAttributesAction()
 }
 
-func SQSDeleteQueueAction(req sqsQueueRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSQSClient()
-	if err != nil {
-		return "", err
-	}
+func (s *SQSController) SQSDeleteQueueAction(req sqsQueueRequest) (string, error) {
 
-	_, err = client.DeleteQueue(*ctx, &sqs.DeleteQueueInput{
+	_, err := s.client.DeleteQueue(*s.ctx, &sqs.DeleteQueueInput{
 		QueueUrl: &req.QueueUrl,
 	})
 	if err != nil {
 		return "", err
 	}
 
-	return SQSGetAttributesAction(awsShared)
+	return s.SQSGetAttributesAction()
 }
 
-func SQSGetAttributeAction(req sqsQueueRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSQSClient()
-	if err != nil {
-		return "", err
-	}
-
-	attrsOutput, err := client.GetQueueAttributes(*ctx, &sqs.GetQueueAttributesInput{
+func (s *SQSController) SQSGetAttributeAction(req sqsQueueRequest) (string, error) {
+	attrsOutput, err := s.client.GetQueueAttributes(*s.ctx, &sqs.GetQueueAttributesInput{
 		QueueUrl: aws.String(req.QueueUrl),
 		AttributeNames: []types.QueueAttributeName{
 			types.QueueAttributeNameAll,
@@ -137,13 +128,8 @@ func SQSGetAttributeAction(req sqsQueueRequest, awsShared awsshared.AWSShared) (
 	return string(res), nil
 }
 
-func SQSPurgeQueueAction(req sqsQueueRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSQSClient()
-	if err != nil {
-		return "", err
-	}
-
-	_, err = client.PurgeQueue(*ctx, &sqs.PurgeQueueInput{
+func (s *SQSController) SQSPurgeQueueAction(req sqsQueueRequest) (string, error) {
+	_, err := s.client.PurgeQueue(*s.ctx, &sqs.PurgeQueueInput{
 		QueueUrl: &req.QueueUrl,
 	})
 
@@ -151,21 +137,16 @@ func SQSPurgeQueueAction(req sqsQueueRequest, awsShared awsshared.AWSShared) (st
 		return "", err
 	}
 
-	return SQSGetAttributesAction(awsShared)
+	return s.SQSGetAttributesAction()
 }
 
-func SQSendMessageAction(req sqsSendMessageRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSQSClient()
-	if err != nil {
-		return "", err
-	}
-
+func (s *SQSController) SQSendMessageAction(req sqsSendMessageRequest) (string, error) {
 	delay, err := strconv.Atoi(req.DelaySeconds)
 	if err != nil {
 		return "", err
 	}
 
-	_, err = client.SendMessage(*ctx, &sqs.SendMessageInput{
+	_, err = s.client.SendMessage(*s.ctx, &sqs.SendMessageInput{
 		DelaySeconds: int32(delay),
 		MessageBody:  &req.MessageBody,
 		QueueUrl:     &req.QueueUrl,
@@ -178,13 +159,8 @@ func SQSendMessageAction(req sqsSendMessageRequest, awsShared awsshared.AWSShare
 	return "{}", nil
 }
 
-func SQSReceiveMessages(req sqsReadMessageRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetSQSClient()
-	if err != nil {
-		return "", nil
-	}
-
-	messages, err := client.ReceiveMessage(*ctx, &sqs.ReceiveMessageInput{
+func (s *SQSController) SQSReceiveMessages(req sqsReadMessageRequest) (string, error) {
+	messages, err := s.client.ReceiveMessage(*s.ctx, &sqs.ReceiveMessageInput{
 		QueueUrl:            &req.QueueUrl,
 		MaxNumberOfMessages: int32(req.MaxNumberOfMessages),
 	})

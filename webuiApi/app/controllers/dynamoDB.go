@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"webuiApi/app/repositories/awsshared"
 
@@ -8,6 +9,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/olbrichattila/gofra/pkg/app/request"
 )
+
+type DynamoDBController struct {
+	client *dynamodb.Client
+	ctx    *context.Context
+}
 
 type tableField struct {
 	AttributeName string `json:"attributeName"`
@@ -20,24 +26,24 @@ type tableCreateRequest struct {
 	Fields []tableField `json:"fields"`
 }
 
-func DynamoDBListTablesWithStartTable(limit int, exclusiveStartTable string, awsShared awsshared.AWSShared, r request.Requester) (string, error) {
-	return dynamoDBListTables(limit, &exclusiveStartTable, awsShared, r)
+func (c *DynamoDBController) Before(awsShared awsshared.AWSShared) {
+	// TODO add error handling
+	c.client, c.ctx, _ = awsShared.GetDynamoDBClient()
 }
 
-func DynamoDBListTables(limit int, awsShared awsshared.AWSShared, r request.Requester) (string, error) {
+func (c *DynamoDBController) DynamoDBListTablesWithStartTable(limit int, exclusiveStartTable string, r request.Requester) (string, error) {
+	return c.dynamoDBListTables(limit, &exclusiveStartTable, r)
+}
+
+func (c *DynamoDBController) DynamoDBListTables(limit int, r request.Requester) (string, error) {
 	var exclusiveStartTable *string = nil
-	return dynamoDBListTables(limit, exclusiveStartTable, awsShared, r)
+	return c.dynamoDBListTables(limit, exclusiveStartTable, r)
 }
 
-func dynamoDBListTables(limit int, exclusiveStartTable *string, awsShared awsshared.AWSShared, r request.Requester) (string, error) {
+func (c *DynamoDBController) dynamoDBListTables(limit int, exclusiveStartTable *string, r request.Requester) (string, error) {
 	int32Limit := int32(limit)
 
-	client, ctx, err := awsShared.GetDynamoDBClient()
-	if err != nil {
-		return "", err
-	}
-
-	tables, err := client.ListTables(*ctx, &dynamodb.ListTablesInput{
+	tables, err := c.client.ListTables(*c.ctx, &dynamodb.ListTablesInput{
 		Limit:                   &int32Limit,
 		ExclusiveStartTableName: exclusiveStartTable,
 	})
@@ -54,12 +60,7 @@ func dynamoDBListTables(limit int, exclusiveStartTable *string, awsShared awssha
 	return string(result), nil
 }
 
-func DynamoDBNewTable(req tableCreateRequest, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetDynamoDBClient()
-	if err != nil {
-		return "", err
-	}
-
+func (c *DynamoDBController) DynamoDBNewTable(req tableCreateRequest) (string, error) {
 	attributes := make([]types.AttributeDefinition, len(req.Fields))
 	keySchemas := make([]types.KeySchemaElement, len(req.Fields))
 
@@ -74,7 +75,7 @@ func DynamoDBNewTable(req tableCreateRequest, awsShared awsshared.AWSShared) (st
 		}
 	}
 
-	_, err = client.CreateTable(*ctx, &dynamodb.CreateTableInput{
+	_, err := c.client.CreateTable(*c.ctx, &dynamodb.CreateTableInput{
 		TableName:            &req.Name,
 		AttributeDefinitions: attributes,
 		KeySchema:            keySchemas,
@@ -88,15 +89,14 @@ func DynamoDBNewTable(req tableCreateRequest, awsShared awsshared.AWSShared) (st
 	return "{}", nil
 }
 
-func DynamoDBDeleteTable(tableName string, awsShared awsshared.AWSShared) (string, error) {
-	client, ctx, err := awsShared.GetDynamoDBClient()
-	if err != nil {
-		return "", nil
-	}
-
-	client.DeleteTable(*ctx, &dynamodb.DeleteTableInput{
+func (c *DynamoDBController) DynamoDBDeleteTable(tableName string) (string, error) {
+	_, err := c.client.DeleteTable(*c.ctx, &dynamodb.DeleteTableInput{
 		TableName: &tableName,
 	})
+
+	if err != nil {
+		return "", err
+	}
 
 	return "{}", nil
 }
