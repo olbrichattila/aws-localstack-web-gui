@@ -40,9 +40,15 @@ type sqsReadMessageRequest struct {
 	MaxNumberOfMessages int    `json:"maxNumberOfMessages"`
 }
 
-func (s *SQSController) Before(awsShared awsshared.AWSShared) {
-	// TODO do error handling
-	s.client, s.ctx, _ = awsShared.GetSQSClient()
+func (s *SQSController) Before(awsShared awsshared.AWSShared) error {
+	var err error
+	s.client, s.ctx, err = awsShared.GetSQSClient()
+
+	if err != nil {
+		return gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
+
+	return nil
 }
 
 func (s *SQSController) SQSGetAttributesAction() (string, error) {

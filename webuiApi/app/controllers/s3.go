@@ -35,10 +35,15 @@ type s3UploadRequest struct {
 	FileName   string `json:"fileName"`
 }
 
-func (s *S3Controller) Before(awsShared awsshared.AWSShared) {
-	// TODO ADD error handling
-	s.s3Client, s.ctx, _ = awsShared.GetS3Client()
+func (s *S3Controller) Before(awsShared awsshared.AWSShared) error {
+	var err error
+	s.s3Client, s.ctx, err = awsShared.GetS3Client()
 
+	if err != nil {
+		return gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
+
+	return nil
 }
 
 // ListBucketsAction function can take any parameters defined in the Di config

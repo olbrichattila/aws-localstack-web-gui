@@ -31,7 +31,8 @@ const DynamoDbTables = () => {
 
     const load = () => {
         listTables(tableListProps.exclusiveStartTableName, parseInt(tableListProps.limit))
-            .then(talbeList => setData(talbeList.map(tableName => { return { tableName } })));
+            .then(talbeList => setData(talbeList.map(tableName => { return { tableName } })))
+            .catch(err => setError(err.message ?? 'Error fetching data'));
     }
 
     const save = (payload) => {

@@ -3,10 +3,12 @@ package controller
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"webuiApi/app/repositories/awsshared"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/olbrichattila/gofra/pkg/app/gofraerror"
 	"github.com/olbrichattila/gofra/pkg/app/request"
 )
 
@@ -49,12 +51,12 @@ func (c *DynamoDBController) dynamoDBListTables(limit int, exclusiveStartTable *
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	result, err := json.Marshal(tables.TableNames)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return string(result), nil
@@ -83,7 +85,7 @@ func (c *DynamoDBController) DynamoDBNewTable(req tableCreateRequest) (string, e
 		BillingMode: types.BillingModePayPerRequest,
 	})
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return "{}", nil
@@ -95,7 +97,7 @@ func (c *DynamoDBController) DynamoDBDeleteTable(tableName string) (string, erro
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return "{}", nil

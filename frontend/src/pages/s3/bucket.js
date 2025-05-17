@@ -16,7 +16,7 @@ const S3Bucket = () => {
 
     const onEvent = (e) => {
         if (e.name === 'Delete') {
-            delBucket(e.i.Name).then(() => loadBuckets().then(buckets => setData(buckets)));
+            delBucket(e.i.Name).then(() => loadBuckets().then(buckets => setData(buckets)).catch(err => setError(err.message ?? 'Error fetching data')));
         }
 
         if (e.name === 'clickable') {
@@ -25,7 +25,7 @@ const S3Bucket = () => {
     }
 
     useEffect(() => {
-        loadBuckets().then(buckets => setData(buckets));
+        loadBuckets().then(buckets => setData(buckets)).catch(err => setError(err.message ?? 'Error fetching data'));
     }, []);
 
     useEffect(() => {

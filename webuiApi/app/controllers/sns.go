@@ -29,9 +29,14 @@ type topicSubscribeRequest struct {
 	Url string `json:"url"`
 }
 
-func (c *SNSController) Before(awsShared awsshared.AWSShared) {
-	// TODO handle error
-	c.client, c.ctx, _ = awsShared.GetSNSClient()
+func (c *SNSController) Before(awsShared awsshared.AWSShared) error {
+	var err error
+	c.client, c.ctx, err = awsShared.GetSNSClient()
+	if err != nil {
+		return gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
+
+	return nil
 }
 
 // SnsAction function can take any parameters defined in the Di config

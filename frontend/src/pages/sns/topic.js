@@ -30,7 +30,7 @@ const TopicPage = () => {
     }
 
     useEffect(() => {
-        load().then(data => setData(data));
+        load().then(data => setData(data)).catch(err => setError(err.message ?? 'Error fetching data'));
     }, []);
 
     useEffect(() => {

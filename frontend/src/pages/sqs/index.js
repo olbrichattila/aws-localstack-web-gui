@@ -70,7 +70,7 @@ const SqsPage = () => {
     }, [watch]);
 
     useEffect(() => {
-        load().then(r => setData(r));
+        load().then(r => setData(r)).catch(err => setError(err.message ?? 'Error fetching data'));
     }, []);
 
     useEffect(() => {
