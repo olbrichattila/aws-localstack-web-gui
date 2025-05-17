@@ -2,9 +2,11 @@ package controller
 
 import (
 	"encoding/json"
+	"net/http"
 	"webuiApi/app/repositories/database"
 	"webuiApi/app/repositories/domain"
 
+	"github.com/olbrichattila/gofra/pkg/app/gofraerror"
 	"github.com/olbrichattila/gofra/pkg/app/request"
 )
 
@@ -23,7 +25,7 @@ func GetSettingsAction(data database.Database) (domain.Setting, error) {
 func SaveSettingsAction(r request.Requester, data database.Database) (domain.Setting, error) {
 	var req settingsRequest
 	if err := json.Unmarshal([]byte(r.Body()), &req); err != nil {
-		return domain.Setting{}, err
+		return domain.Setting{}, gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	setting := domain.Setting{
@@ -37,7 +39,7 @@ func SaveSettingsAction(r request.Requester, data database.Database) (domain.Set
 		},
 	}
 	if err := data.SaveSettings(setting); err != nil {
-		return domain.Setting{}, err
+		return domain.Setting{}, gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return data.GetSettings()

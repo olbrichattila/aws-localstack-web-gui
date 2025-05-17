@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"net/http"
 	"strconv"
 	"webuiApi/app/repositories/awsshared"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	"github.com/olbrichattila/gofra/pkg/app/gofraerror"
 )
 
 type SQSController struct {
@@ -46,7 +48,7 @@ func (s *SQSController) Before(awsShared awsshared.AWSShared) {
 func (s *SQSController) SQSGetAttributesAction() (string, error) {
 	listQueuesOutput, err := s.client.ListQueues(*s.ctx, &sqs.ListQueuesInput{})
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	var result []map[string]interface{}
@@ -79,7 +81,7 @@ func (s *SQSController) SQSGetAttributesAction() (string, error) {
 
 	res, err := json.Marshal(result)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return string(res), nil
@@ -106,7 +108,7 @@ func (s *SQSController) SQSDeleteQueueAction(req sqsQueueRequest) (string, error
 		QueueUrl: &req.QueueUrl,
 	})
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return s.SQSGetAttributesAction()
@@ -122,7 +124,7 @@ func (s *SQSController) SQSGetAttributeAction(req sqsQueueRequest) (string, erro
 
 	res, err := json.Marshal(attrsOutput.Attributes)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return string(res), nil
@@ -134,7 +136,7 @@ func (s *SQSController) SQSPurgeQueueAction(req sqsQueueRequest) (string, error)
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return s.SQSGetAttributesAction()
@@ -143,7 +145,7 @@ func (s *SQSController) SQSPurgeQueueAction(req sqsQueueRequest) (string, error)
 func (s *SQSController) SQSendMessageAction(req sqsSendMessageRequest) (string, error) {
 	delay, err := strconv.Atoi(req.DelaySeconds)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	_, err = s.client.SendMessage(*s.ctx, &sqs.SendMessageInput{
@@ -153,7 +155,7 @@ func (s *SQSController) SQSendMessageAction(req sqsSendMessageRequest) (string, 
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return "{}", nil
@@ -166,7 +168,7 @@ func (s *SQSController) SQSReceiveMessages(req sqsReadMessageRequest) (string, e
 	})
 
 	if err != nil {
-		return "", nil
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	if messages.Messages == nil {
@@ -175,7 +177,7 @@ func (s *SQSController) SQSReceiveMessages(req sqsReadMessageRequest) (string, e
 
 	res, err := json.Marshal(messages.Messages)
 	if err != nil {
-		return "", nil
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return string(res), nil

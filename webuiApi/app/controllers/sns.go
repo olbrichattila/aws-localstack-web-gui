@@ -3,11 +3,13 @@ package controller
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"net/url"
 	"webuiApi/app/repositories/awsshared"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"github.com/olbrichattila/gofra/pkg/app/gofraerror"
 )
 
 type SNSController struct {
@@ -36,14 +38,14 @@ func (c *SNSController) Before(awsShared awsshared.AWSShared) {
 func (c *SNSController) SNSGetAttributes() (string, error) {
 	topics, err := c.client.ListTopics(*c.ctx, &sns.ListTopicsInput{})
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	response := make([]map[string]string, len(topics.Topics))
 	for i, topic := range topics.Topics {
 		attrs, err := c.getSNSAttribute(c.client, c.ctx, *topic.TopicArn)
 		if err != nil {
-			return "", err
+			return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 		}
 
 		response[i] = attrs
@@ -51,7 +53,7 @@ func (c *SNSController) SNSGetAttributes() (string, error) {
 
 	res, err := json.Marshal(response)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return string(res), nil
@@ -62,7 +64,7 @@ func (c *SNSController) getSNSAttribute(client *sns.Client, ctx *context.Context
 		TopicArn: aws.String(topicUrl),
 	})
 	if err != nil {
-		return nil, err
+		return nil, gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return attrsOutput.Attributes, nil
@@ -74,7 +76,7 @@ func (c *SNSController) SNSCreateTopic(req topicRequest) (string, error) {
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return c.SNSGetAttributes()
@@ -86,7 +88,7 @@ func (c *SNSController) SNSDeleteTopic(req topicRequest) (string, error) {
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return c.SNSGetAttributes()
@@ -99,7 +101,7 @@ func (c *SNSController) SNSPublishToTopicARN(topicArn string, req topicMessageRe
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return "{}", nil
@@ -111,12 +113,12 @@ func (c *SNSController) SNSGetSubscriptionsByARN(topicArn string) (string, error
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	res, err := json.Marshal(topics.Subscriptions)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return string(res), nil
@@ -125,7 +127,7 @@ func (c *SNSController) SNSGetSubscriptionsByARN(topicArn string) (string, error
 func (c *SNSController) SNSCreateSubscriptionForARN(topicArn string, req topicSubscribeRequest) (string, error) {
 	parsedUrl, err := url.Parse(req.Url)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	protocol := parsedUrl.Scheme
@@ -136,7 +138,7 @@ func (c *SNSController) SNSCreateSubscriptionForARN(topicArn string, req topicSu
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	topics, err := c.client.ListSubscriptionsByTopic(*c.ctx, &sns.ListSubscriptionsByTopicInput{
@@ -144,12 +146,12 @@ func (c *SNSController) SNSCreateSubscriptionForARN(topicArn string, req topicSu
 	})
 
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	result, err := json.Marshal(topics.Subscriptions)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return string(result), nil
@@ -160,7 +162,7 @@ func (c *SNSController) SNSDeleteSubscriptionByARN(topicArn string) (string, err
 		SubscriptionArn: aws.String(topicArn),
 	})
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return "{}", nil

@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/olbrichattila/gofra/pkg/app/gofraerror"
 	"github.com/olbrichattila/gofra/pkg/app/request"
 )
 
@@ -44,11 +45,15 @@ func (s *S3Controller) Before(awsShared awsshared.AWSShared) {
 func (s *S3Controller) ListBucketsAction() (string, error) {
 	output, err := s.s3Client.ListBuckets(*s.ctx, &s3.ListBucketsInput{})
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	res, err := json.Marshal(output.Buckets)
-	return string(res), err
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
+
+	return string(res), nil
 }
 
 // CreateBucketAction function can take any parameters defined in the Di config
@@ -56,7 +61,7 @@ func (s *S3Controller) CreateBucketAction(req s3BucketRequest) (string, error) {
 	if _, err := s.s3Client.CreateBucket(*s.ctx, &s3.CreateBucketInput{
 		Bucket: aws.String(req.Name),
 	}); err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return s.ListBucketsAction()
@@ -67,7 +72,7 @@ func (s *S3Controller) DeleteBucketAction(req s3BucketRequest) (string, error) {
 	if _, err := s.s3Client.DeleteBucket(*s.ctx, &s3.DeleteBucketInput{
 		Bucket: aws.String(req.Name),
 	}); err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return s.ListBucketsAction()
@@ -90,7 +95,11 @@ func (s *S3Controller) getBucketContent(bucketName string) (string, error) {
 	}
 
 	res, err := json.Marshal(output.Contents)
-	return string(res), err
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
+
+	return string(res), nil
 }
 
 // FileUpload function can take any parameters defined in the Di config
@@ -98,26 +107,26 @@ func (s *S3Controller) FileUpload(req request.Requester) (string, error) {
 	r := req.GetRequest()
 	err := r.ParseMultipartForm(10 << 20) // 10MB
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	// Get the file from form
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	defer file.Close()
 
 	err = os.MkdirAll(uploadDirPath, 0755)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	// Create a destination file
 	dst, err := os.Create(uploadDirPath + handler.Filename)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	defer dst.Close()
@@ -125,7 +134,7 @@ func (s *S3Controller) FileUpload(req request.Requester) (string, error) {
 	// Copy the uploaded file to the destination
 	_, err = io.Copy(dst, file)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return "[]", nil
@@ -135,7 +144,7 @@ func (s *S3Controller) FileUpload(req request.Requester) (string, error) {
 func (s *S3Controller) FileUploadToS3(req s3UploadRequest) (string, error) {
 	file, err := os.Open(uploadDirPath + req.FileName)
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	defer func() {
@@ -149,7 +158,7 @@ func (s *S3Controller) FileUploadToS3(req s3UploadRequest) (string, error) {
 		Body:   file,
 	})
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return s.getBucketContent(req.BucketName)
@@ -230,7 +239,7 @@ func (s *S3Controller) DeleteFile(req s3UploadRequest, w http.ResponseWriter) (s
 		Key:    aws.String(req.FileName),
 	})
 	if err != nil {
-		return "", err
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return s.getBucketContent(req.BucketName)

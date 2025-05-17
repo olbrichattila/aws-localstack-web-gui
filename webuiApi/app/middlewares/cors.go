@@ -1,6 +1,8 @@
 package middleware
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // CorsMiddleware function can take any parameters defined in the Di config
 func CorsMiddleware(w http.ResponseWriter) {

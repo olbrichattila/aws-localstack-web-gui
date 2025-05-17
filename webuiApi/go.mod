@@ -12,7 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.5
 	github.com/mattn/go-sqlite3 v1.14.23
 	github.com/olbrichattila/godi v1.0.18
-	github.com/olbrichattila/gofra v1.0.7
+	github.com/olbrichattila/gofra v1.0.10
 )
 
 require (
