@@ -10,8 +10,7 @@ import (
 
 var DiBindings = []config.DiCallback{
 	func(di godi.Container) (string, interface{}, error) {
-		db, err := database.New()
-		return "app.repositories.database.Database", db, err
+		return "app.repositories.database.Database", database.New(), nil
 	},
 	func(di godi.Container) (string, interface{}, error) {
 		awsshared := awsshared.New()

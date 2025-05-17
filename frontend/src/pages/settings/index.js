@@ -1,72 +1,100 @@
 import React, { useEffect, useState } from "react";
-import Button from '../../components/button';
+import Button from "../../components/button";
 import { getSettings, saveSettings } from "../../api/settings";
-import './index.scss';
+import "./index.scss";
 
 const initialFormState = {
-    key: '',
-    secret: '',
-    endpoint: '',
-    region: '',
-}
+    key: "",
+    secret: "",
+    endpoint: "",
+    region: "",
+};
 
 const SettingsPage = () => {
+    const [error, setError] = useState("");
     const [formState, setFormState] = useState(initialFormState);
 
     const save = () => {
-        saveSettings(formState).then(settings => assignSettingsToForm(settings));
-    }
+        saveSettings(formState).then((settings) =>
+            assignSettingsToForm(settings)
+        );
+    };
 
     const assignSettingsToForm = (settings) => {
         setFormState({
-            key: settings.credentials.key ?? '',
-            secret: settings.credentials.secret ?? '',
-            endpoint: settings.endpoint ?? '',
-            region: settings.region ?? '',
+            key: settings.credentials.key ?? "",
+            secret: settings.credentials.secret ?? "",
+            endpoint: settings.endpoint ?? "",
+            region: settings.region ?? "",
         });
-    }
+    };
 
     useEffect(() => {
-        getSettings().then(settings => assignSettingsToForm(settings));
+        getSettings()
+            .then((settings) => assignSettingsToForm(settings))
+            .catch((err) => setError("failed to get settings"));
     }, []);
 
+    useEffect(() => {
+        let timeoutId = -1;
+        if (error !== "") {
+            timeoutId = setTimeout(() => {
+                setError("");
+            }, 4000);
+        }
+
+        return () => {
+            if (timeoutId !== -1) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [error]);
 
     return (
         <div className="settings">
+            {error !== '' && <div className="errorLine" >{error}</div>}
             <label>
                 Region
                 <input
-                    type='text'
+                    type="text"
                     value={formState.region}
                     placeholder="us-east-1"
-                    onChange={(e) => setFormState({ ...formState, region: e.target.value })}
+                    onChange={(e) =>
+                        setFormState({ ...formState, region: e.target.value })
+                    }
                 />
             </label>
             <label>
                 Endpoint
                 <input
-                    type='text'
+                    type="text"
                     value={formState.endpoint}
                     placeholder="http://localhost:4566"
-                    onChange={(e) => setFormState({ ...formState, endpoint: e.target.value })}
+                    onChange={(e) =>
+                        setFormState({ ...formState, endpoint: e.target.value })
+                    }
                 />
             </label>
             <label>
                 Key
                 <input
-                    type='text'
+                    type="text"
                     value={formState.key}
                     placeholder="your-access-key-id"
-                    onChange={(e) => setFormState({ ...formState, key: e.target.value })}
+                    onChange={(e) =>
+                        setFormState({ ...formState, key: e.target.value })
+                    }
                 />
             </label>
             <label>
                 secret
                 <input
-                    type='text'
+                    type="text"
                     value={formState.secret}
                     placeholder="your-secret-access-key"
-                    onChange={(e) => setFormState({ ...formState, secret: e.target.value })}
+                    onChange={(e) =>
+                        setFormState({ ...formState, secret: e.target.value })
+                    }
                 />
             </label>
             <label>
@@ -75,6 +103,6 @@ const SettingsPage = () => {
             </label>
         </div>
     );
-}
+};
 
 export default SettingsPage;
