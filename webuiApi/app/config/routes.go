@@ -7,14 +7,57 @@ import (
 	"github.com/olbrichattila/gofra/pkg/app/router"
 )
 
+/*
+// Serve files in the current directory at root
+	fs := http.FileServer(http.Dir("."))
+	http.Handle("/", fs)
+	http.Handle("/s3/", http.StripPrefix("/s3/", fs))
+	http.Handle("/sqs/", http.StripPrefix("/sqs/", fs))
+	http.Handle("/sqdynamodb/", http.StripPrefix("/sqdynamodb/", fs))
+	http.Handle("/settings/", http.StripPrefix("/settings/", fs))
+
+	// Serve files in ./static under /static
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
+*/
+
 var Routes = []router.ControllerAction{
-	// {
-	// 	Path:        "/",
-	// 	RequestType: []string{http.MethodOptions, http.MethodGet},
-	// 	Fn: func() map[string]string {
-	// 		return map[string]string{"result": "It works"}
-	// 	},
-	// },
+	{
+		Path:        "/*",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/build",
+	},
+	{
+		Path:        "/s3",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/build",
+	},
+	{
+		Path:        "/sqs",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/build",
+	},
+	{
+		Path:        "/dynamodb",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/build",
+	},
+	{
+		Path:        "/settings",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/build",
+	},
+	{
+		Path:        "/static/**",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "frontend/build/static/",
+	},
 	{
 		Path:        "/api/s3/buckets",
 		RequestType: []string{http.MethodOptions, http.MethodGet},
