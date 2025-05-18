@@ -26,7 +26,13 @@ const request = async (type, path, payload = null) => {
         const response = await fetch(`${process.env.REACT_APP_API_URL}${path}`, options);
         if (!response.ok) {
             const json = await response.json();
-            const message = json.errors || json.error ? JSON.stringify(json) : 'Network response was not ok';
+            let message = 'Whoops, something went wrong'
+
+            if (json.error) {
+                 message = json.error
+            } else if (json.errors) {
+                 message = json.errors
+            }
 
             throw new Error(message);
         }

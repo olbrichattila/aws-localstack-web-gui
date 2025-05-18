@@ -13,11 +13,13 @@ const initialFormState = {
 const SettingsPage = () => {
     const [error, setError] = useState("");
     const [formState, setFormState] = useState(initialFormState);
+    const [message, setMessage] = useState('');
 
     const save = () => {
-        saveSettings(formState).then((settings) =>
-            assignSettingsToForm(settings)
-        );
+        saveSettings(formState).then((settings) => {
+            setMessage('Settings saved successfully');
+            assignSettingsToForm(settings);
+        });
     };
 
     const assignSettingsToForm = (settings) => {
@@ -40,7 +42,7 @@ const SettingsPage = () => {
         if (error !== "") {
             timeoutId = setTimeout(() => {
                 setError("");
-            }, 4000);
+            }, 6000);
         }
 
         return () => {
@@ -50,11 +52,29 @@ const SettingsPage = () => {
         };
     }, [error]);
 
+
+    useEffect(() => {
+        let messageDisplayTimeoutId = -1;
+        if (message !== '') {
+            messageDisplayTimeoutId = setTimeout(() => {
+                setMessage('');
+            }, 2000);
+        }
+
+        return () => {
+            if (messageDisplayTimeoutId !== -1) {
+                clearTimeout(messageDisplayTimeoutId);
+            }
+        };
+    }, [message]);
+
     return (
         <div className="settings">
-            {error !== '' && <div className="errorLine" >{error}</div>}
+            {error !== "" && <div className="errorLine">{error}</div>}
+            {message !== '' && <div className="messageLine">{message}</div>}
+            
             <label>
-                Region
+                Region:
                 <input
                     type="text"
                     value={formState.region}
@@ -65,7 +85,7 @@ const SettingsPage = () => {
                 />
             </label>
             <label>
-                Endpoint
+                Endpoint:
                 <input
                     type="text"
                     value={formState.endpoint}
@@ -76,7 +96,7 @@ const SettingsPage = () => {
                 />
             </label>
             <label>
-                Key
+                Key:
                 <input
                     type="text"
                     value={formState.key}
@@ -87,7 +107,7 @@ const SettingsPage = () => {
                 />
             </label>
             <label>
-                secret
+                Secret:
                 <input
                     type="text"
                     value={formState.secret}

@@ -1,31 +1,53 @@
 .sqsTable {
     width: 100%;
-    border-spacing: 0 6px;
-    th {
-        background-color: #f2f2f2;
-        background-color: #f90;
-        color: white;
-        font-size: 14px;
+    border-spacing: 0;
+    border-collapse: collapse;
+
+    tr {
+        th {
+            // background-color: #f90;
+            background-color: #5a287d;
+            color: white;
+            font-size: 14px;
+            padding: 6px 0;
+        }
     }
 
     tr {
-      background-color: #E9E9E9;
-      
-      td {
-        border: 1px solid white;
-        padding: 4px;
-        margin: 6px 0;
+        background-color: #c9c9c9;
+        border-bottom: 1px solid white;
+        
+        td {
+            // border: 1px solid white;
+            border-right: 2px solid white;
+            padding: 4px;
+            
+            &.clickable {
+                text-decoration: underline;
+                user-select: none;
+                cursor: pointer;
 
-        &.clickable {
-          text-decoration: underline;
-          user-select: none;
-          cursor: pointer;
+                &:hover {
+                    color: blue;
+                }
+            }
 
-          &:hover {
-            color: blue;
-          }
+            &:nth-last-child {
+              border-right: none;
+            }
+
+            &:hover {
+              background-color: #d8acf8;
+            }
         }
-      }
+
+        &:nth-child(even) {
+          background-color: #f2f2f2;
+        }
+
+        &:hover > td {
+          border: 2px solid #5a287d;
+        }
     }
 
     .narrow {

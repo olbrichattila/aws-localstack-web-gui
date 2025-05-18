@@ -1,5 +1,6 @@
 .custom-button {
-    background-color: #f90;
+    //  background-color: #f90;
+    background-color: #5A287D;
     color: #fff;
     padding: 6px 12px;
     font-size: 14px;
@@ -10,7 +11,9 @@
     white-space: nowrap;
   
     &:hover {
-      background-color: rgba(255, 153, 0, 0.524);;
+      background-color: #9f47da;
+      color: white;
+      // background-color: rgba(255, 153, 0, 0.524);;
     }
   }
   

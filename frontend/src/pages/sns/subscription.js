@@ -26,7 +26,7 @@ const SubscriptionPage = () => {
     }
 
     useEffect(() => {
-        subList(topicArn).then(data => setFilteredData(data));
+        subList(topicArn).then(data => setFilteredData(data)).catch((err) => setError(err.message ?? "Error fetching data"));;
     }, [topicArn]);
 
     useEffect(() => {
@@ -34,7 +34,7 @@ const SubscriptionPage = () => {
         if (error !== '') {
             timeoutId = setTimeout(() => {
                 setError('');
-            }, 4000);
+            }, 6000);
         }
 
         return () => {

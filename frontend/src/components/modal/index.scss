@@ -15,15 +15,51 @@
         transform: translate(-50%, -50%);
         background: #fff;
         padding: 20px;
-        border-radius: 8px;
+        border-radius: 3px;
+        border: 1px solid #666666;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 
         .close-button {
             position: absolute;
-            top: 0;
-            right: 10px;
-            font-size: 30px;
+            top: 5px;
+            right: 0px;
+            width: 22px;
+            height: 22px;
             cursor: pointer;
+
+            &::before, &::after {
+                transition: transform 0.3s ease-out;
+                display: block;
+                position: absolute;
+                content: "";
+                width: 2px;
+                height: 22px;
+                background-color: black;
+                border: 1px solid #333333;
+                border-radius: 50%;
+            }
+
+            &::before {
+                transform: rotate(45deg);
+            }
+
+            &::after {
+                transform: rotate(-45deg);
+            }
+
+            &:hover {
+                &::before, &::after {
+                    transition: transform 0.3s ease-out;
+                }
+                
+                &::before {
+                    transform: rotate(25deg);
+                }
+    
+                &::after {
+                    transform: rotate(-25deg);
+                }
+            }
           }
       }
   }

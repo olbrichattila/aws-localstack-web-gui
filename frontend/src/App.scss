@@ -1,7 +1,10 @@
 body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background-color: white;
   color: #333;
-  font-family: 'Roboto, sans-serif',;
 }
 
 .App {
@@ -9,14 +12,16 @@ body {
 }
 
 .App-header {
-  background-color: #f90;
+  // background-color: #f90;
+  box-sizing: border-box;
+  background-color:#3c1053;
+  padding: 8px 3px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  font-size: 18px;
   color: white;
-  padding: 6px;
 }
 
 .App-link {
@@ -27,14 +32,15 @@ body {
   display: flex;
 
   .left-menu {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    margin-top: 40px;
+    margin-top: 42px;
     height: calc(100vh - 40px);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
     ul {
       margin: 0;
       padding: 0;
@@ -42,18 +48,27 @@ body {
 
       li {
         padding: 6px 12px;
-        margin: 6px;
+        margin: 3px;
         border: 1px solid white;
-        border-radius: 6px;
+        border-radius: 3px;
         background-color: #d9d9d9;
-        
         cursor: pointer;
 
         &.active {
-          background-color: #f90;
+          // background-color: #f90;
+          background-color: #5A287D;
+          a {
+            color: white;
+          }
         }
+
         &:hover {
-          background-color: rgba(255, 153, 0, 0.524);
+          background-color: #9f47da;
+          // background-color: rgba(255, 153, 0, 0.524);
+        }
+
+        a {
+          color: #5A287D;
         }
       }
     }
@@ -69,15 +84,21 @@ body {
     margin-left: 120px;
 
     .containerHeader {
-      background-color: #f90;
+      // background-color: #f90;
+      background-color: #5A287D;
+      color: white;
       display: flex;
       line-height: 40px;
 
       span {
         line-height: 40px;
-        padding: 0 12px;
+        padding: 0 6px;
         font-weight: 800;
         font-size: 18px;
+      }
+
+      svg {
+        margin: 3px;
       }
     }
 
@@ -99,12 +120,40 @@ textarea {
 }
 
 label {
+  font-size: 14px;
   font-weight: 800;
 }
 
 .errorLine {
   border: 1px solid darkred;
+  background-color: darkred;
+  color: white;
+  border-radius: 1px solid red;
+  box-shadow: 2px 2px 4px black;
   margin: 6px 0;
   padding: 6px;
-  color: darkred;
+}
+
+.messageLine {
+  border: 1px solid #5A287D;
+  background-color: #5A287D;
+  color: white;
+  border-radius: 1px solid red;
+  box-shadow: 2px 2px 4px black;
+  margin: 6px 0;
+  padding: 6px;
+}
+
+input {
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid black;
+  padding: 6px 0;
+  
+
+  &:focus {
+    border: none;
+    border-bottom: 1px solid black;
+    outline: none;
+  }
 }

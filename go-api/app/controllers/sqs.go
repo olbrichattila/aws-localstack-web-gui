@@ -102,7 +102,26 @@ func (s *SQSController) SQSCreateQueueAction(req sqsAddQueueRequest) (string, er
 		},
 	})
 	if err != nil {
-		return "", nil
+		return "", gofraerror.NewJSON(err.Error(), http.StatusBadRequest)
+	}
+
+	return s.SQSGetAttributesAction()
+}
+
+func (s *SQSController) SQSCreateFIFOQueueAction(req sqsAddQueueRequest) (string, error) {
+	_, err := s.client.CreateQueue(*s.ctx, &sqs.CreateQueueInput{
+		QueueName: &req.QueueName,
+		Attributes: map[string]string{
+			"FifoQueue":                 "true",
+			"ContentBasedDeduplication": "true",              // or set to "false" and provide MessageDeduplicationId manually
+			"DeduplicationScope":        "messageGroup",      // optional: messageGroup or queue
+			"FifoThroughputLimit":       "perMessageGroupId", // optional: perQueue or perMessageGroupId
+			string(types.QueueAttributeNameVisibilityTimeout):  strconv.Itoa(req.DelaySeconds),
+			string(types.QueueAttributeNameMaximumMessageSize): strconv.Itoa(req.MaximumMessageSize),
+		},
+	})
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusBadRequest)
 	}
 
 	return s.SQSGetAttributesAction()
@@ -158,6 +177,21 @@ func (s *SQSController) SQSendMessageAction(req sqsSendMessageRequest) (string, 
 		DelaySeconds: int32(delay),
 		MessageBody:  &req.MessageBody,
 		QueueUrl:     &req.QueueUrl,
+	})
+
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
+
+	return "{}", nil
+}
+
+func (s *SQSController) SQSendFIFOMessageAction(req sqsSendMessageRequest) (string, error) {
+	_, err := s.client.SendMessage(*s.ctx, &sqs.SendMessageInput{
+		MessageGroupId:         aws.String("group-1"), // required
+		MessageDeduplicationId: aws.String("unique-id-123"),
+		MessageBody:            &req.MessageBody,
+		QueueUrl:               &req.QueueUrl,
 	})
 
 	if err != nil {

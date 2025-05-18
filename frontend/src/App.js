@@ -12,13 +12,13 @@ import RenderPage from './pages'
 import ErrorBoundary from './ErrorBoundary';
 
 function App() {
-  const [selectedMenu, setSelectedMenu] = useState(5);
+  const [selectedMenu] = useState(6);
 
   return (
     <BrowserRouter>
     <div className="App">
       <header className="App-header">
-        AWS Localstack manager / V1.0004
+        AWS Localstack manager / V1.0005
       </header>
       <div className="main-wrapper">
         <div className="left-menu">
@@ -35,9 +35,12 @@ function App() {
             <MenuOption to="/dynamodb" active={selectedMenu === 4} >
               Dynamo DB<br /><DynamoDbIcon />
             </MenuOption>
+            <MenuOption to="/listeners_sns" active={selectedMenu === 5} >
+              SNS<br /> Listeners<br /><SnsIcon />
+            </MenuOption>
           </ul>
           <ul>
-            <MenuOption to="/settings" active={selectedMenu === 5} >
+            <MenuOption to="/settings" active={selectedMenu === 6} >
               Settings<br /><FontAwesomeIcon icon={faCog} />
             </MenuOption>
           </ul>

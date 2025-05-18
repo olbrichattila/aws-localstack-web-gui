@@ -52,7 +52,7 @@ const SendSqsMessageModal = ({
             if (errors.length > 0) {
                 setErrors([]);
             }
-        }, 4000);
+        }, 6000);
         return () => {
             clearTimeout(timeoutId);
         };

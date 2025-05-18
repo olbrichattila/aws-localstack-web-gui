@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 	"fmt"
+	"sync"
 	"webuiApi/app/repositories/domain"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -26,11 +27,16 @@ var (
 )
 
 func newSQLite() Database {
-	return &sqlite{}
+	return &sqlite{
+		isModified: true,
+	}
 }
 
 type sqlite struct {
-	db db.DBer
+	mu           sync.Mutex
+	db           db.DBer
+	isModified   bool
+	settingCache domain.Setting
 }
 
 // Construct implements Database.
@@ -40,6 +46,11 @@ func (s *sqlite) Construct(db db.DBer) {
 
 // GetSettings implements Database.
 func (s *sqlite) GetSettings() (domain.Setting, error) {
+	s.db.Open()
+	defer s.db.Close()
+	if !s.isModified {
+		return s.settingCache, nil
+	}
 
 	row, err := s.db.QueryOne("SELECT region, endpoint, key, secret FROM settings LIMIT 1")
 	if err != nil && err.Error() == "row cannot be found" {
@@ -59,11 +70,18 @@ func (s *sqlite) GetSettings() (domain.Setting, error) {
 		},
 	}
 
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.isModified = false
+	s.settingCache = setting
 	return setting, nil
 }
 
 // SaveSettings implements Database.
 func (s *sqlite) SaveSettings(setting domain.Setting) error {
+	s.db.Open()
+	defer s.db.Close()
 	row, err := s.db.QueryOne("SELECT count(*) as cnt FROM settings")
 
 	if err != nil {
@@ -98,5 +116,9 @@ func (s *sqlite) SaveSettings(setting domain.Setting) error {
 		return fmt.Errorf("%w: %v", errDatabase, err)
 	}
 
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.isModified = true
 	return nil
 }

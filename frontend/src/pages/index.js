@@ -4,6 +4,8 @@ import S3Bucket from './s3/bucket';
 import S3BucketContent from './s3/content';
 import TopicPage from './sns/topic';
 import SubscriptionPage from './sns/subscription';
+import SNSListenersPage from './SNSListeners';
+import SNSListPage from './SNSListeners/list';
 import DynamoDbTables from './DynamoDb/tables';
 import DynamoDbContent from './DynamoDb/content';
 import SettingsPage from './settings';
@@ -26,6 +28,8 @@ const RenderPage = () => {
         <Route path='/sns/:topicArn' element={<Layout Component={SubscriptionPage} Icon={SnsIcon} title="SNS Subscriptions" />} />
         <Route path='/dynamodb' element={<Layout Component={DynamoDbTables} Icon={DynamoDbIcon} title="DynamoDB" />} />
         <Route path='/dynamodb/:tableName' element={<Layout Component={DynamoDbContent} Icon={DynamoDbIcon} title="DynamoDB content" />} />
+        <Route path='/listeners_sns' element={<Layout Component={SNSListenersPage} Icon={SnsIcon} title="SNS Listeners" />} />
+        <Route path='/listeners_sns/:portNum' element={<Layout Component={SNSListPage} Icon={SnsIcon} title="SNS Listeners" />} />
         <Route path='/settings' element={<Layout Component={SettingsPage} Icon={SettingsIcon} title="Settings" />} />
       </Routes>
     </div>

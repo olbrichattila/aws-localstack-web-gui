@@ -33,7 +33,7 @@ const S3Bucket = () => {
         if (error !== '') {
             timeoutId = setTimeout(() => {
                 setError('');
-            }, 4000);
+            }, 6000);
         }
 
         return () => {

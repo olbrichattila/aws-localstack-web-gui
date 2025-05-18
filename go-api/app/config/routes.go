@@ -7,57 +7,7 @@ import (
 	"github.com/olbrichattila/gofra/pkg/app/router"
 )
 
-/*
-// Serve files in the current directory at root
-	fs := http.FileServer(http.Dir("."))
-	http.Handle("/", fs)
-	http.Handle("/s3/", http.StripPrefix("/s3/", fs))
-	http.Handle("/sqs/", http.StripPrefix("/sqs/", fs))
-	http.Handle("/sqdynamodb/", http.StripPrefix("/sqdynamodb/", fs))
-	http.Handle("/settings/", http.StripPrefix("/settings/", fs))
-
-	// Serve files in ./static under /static
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-
-*/
-
 var Routes = []router.ControllerAction{
-	{
-		Path:        "/*",
-		RequestType: []string{http.MethodGet},
-		IsStatic:    true,
-		StaticPath:  "/frontend/build",
-	},
-	{
-		Path:        "/s3",
-		RequestType: []string{http.MethodGet},
-		IsStatic:    true,
-		StaticPath:  "/frontend/build",
-	},
-	{
-		Path:        "/sqs",
-		RequestType: []string{http.MethodGet},
-		IsStatic:    true,
-		StaticPath:  "/frontend/build",
-	},
-	{
-		Path:        "/dynamodb",
-		RequestType: []string{http.MethodGet},
-		IsStatic:    true,
-		StaticPath:  "/frontend/build",
-	},
-	{
-		Path:        "/settings",
-		RequestType: []string{http.MethodGet},
-		IsStatic:    true,
-		StaticPath:  "/frontend/build",
-	},
-	{
-		Path:        "/static/**",
-		RequestType: []string{http.MethodGet},
-		IsStatic:    true,
-		StaticPath:  "frontend/build/static/",
-	},
 	{
 		Path:        "/api/s3/buckets",
 		RequestType: []string{http.MethodOptions, http.MethodGet},
@@ -121,7 +71,6 @@ var Routes = []router.ControllerAction{
 		Path:        "/api/settings",
 		RequestType: []string{http.MethodOptions, http.MethodPost},
 		Fn:          controller.SaveSettingsAction,
-		// Middlewares: []any{middleware.CorsMiddleware},
 	},
 
 	// SQS
@@ -144,6 +93,12 @@ var Routes = []router.ControllerAction{
 		ActionName:  "SQSCreateQueueAction",
 	},
 	{
+		Path:        "/api/sqs/fifo",
+		RequestType: []string{http.MethodOptions, http.MethodPost},
+		Controller:  func() any { return &controller.SQSController{} },
+		ActionName:  "SQSCreateFIFOQueueAction",
+	},
+	{
 		Path:        "/api/sqs",
 		RequestType: []string{http.MethodOptions, http.MethodDelete},
 		Controller:  func() any { return &controller.SQSController{} },
@@ -160,6 +115,12 @@ var Routes = []router.ControllerAction{
 		RequestType: []string{http.MethodOptions, http.MethodPost},
 		Controller:  func() any { return &controller.SQSController{} },
 		ActionName:  "SQSendMessageAction",
+	},
+	{
+		Path:        "/api/sqs/message/send/fifo",
+		RequestType: []string{http.MethodOptions, http.MethodPost},
+		Controller:  func() any { return &controller.SQSController{} },
+		ActionName:  "SQSendFIFOMessageAction",
 	},
 	{
 		Path:        "/api/sqs/message/receive",
@@ -212,6 +173,33 @@ var Routes = []router.ControllerAction{
 		ActionName:  "SNSDeleteSubscriptionByARN",
 	},
 
+	// SNS Listener
+
+	{
+		Path:        "/api/sns/listener/:port",
+		RequestType: []string{http.MethodOptions, http.MethodGet},
+		Controller:  func() any { return &controller.SNSListenerController{} },
+		ActionName:  "NewSNSListener",
+	},
+	{
+		Path:        "/api/sns/listener/:port",
+		RequestType: []string{http.MethodOptions, http.MethodDelete},
+		Controller:  func() any { return &controller.SNSListenerController{} },
+		ActionName:  "CloseSNSListener",
+	},
+	{
+		Path:        "/api/sns/listener/:port/get",
+		RequestType: []string{http.MethodOptions, http.MethodGet},
+		Controller:  func() any { return &controller.SNSListenerController{} },
+		ActionName:  "GetRequests",
+	},
+	{
+		Path:        "/api/sns/listeners",
+		RequestType: []string{http.MethodOptions, http.MethodGet},
+		Controller:  func() any { return &controller.SNSListenerController{} },
+		ActionName:  "GetListeners",
+	},
+
 	// DynamoDB
 	{
 		Path:        "/api/dynamodb-list/:itemCount",
@@ -236,5 +224,43 @@ var Routes = []router.ControllerAction{
 		RequestType: []string{http.MethodOptions, http.MethodDelete},
 		Controller:  func() any { return &controller.DynamoDBController{} },
 		ActionName:  "DynamoDBDeleteTable",
+	},
+
+	// Global routes
+	{
+		Path:        "/s3",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/index.html",
+	},
+	{
+		Path:        "/sqs",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/index.html",
+	},
+	{
+		Path:        "/sns",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/index.html",
+	},
+	{
+		Path:        "/dynamodb",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/index.html",
+	},
+	{
+		Path:        "/static/**",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/static/",
+	},
+	{
+		Path:        "/*",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/",
 	},
 }

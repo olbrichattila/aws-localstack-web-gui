@@ -1,0 +1,8 @@
+
+APP_URL=http://localhost
+HTTP_LISTENING_PORT=80
+SESSION_STORAGE=file
+LOGGER_STORAGE=file
+CACHE_STORAGE=file
+DB_CONNECTION=sqlite
+DB_DATABASE=./database/database.sqlite

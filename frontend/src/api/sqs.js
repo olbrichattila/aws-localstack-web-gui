@@ -12,6 +12,14 @@ const save = async (queueName) => {
     });
 }
 
+const saveFifo = async (queueName) => {
+    return post('/api/sqs/fifo', {
+        name: queueName,
+        delaySeconds: 5,
+        maximumMessageSize: 4096
+    });
+}
+
 const delQueue = async (queueUrl) => {
     del('/api/sqs', {
         "queueUrl": queueUrl
@@ -31,6 +39,14 @@ const refresh = async (queueUrl) => {
 }
 
 const sendMessage = async (queueUrl, delaySeconds, messageBody) => {
+    if (queueUrl.endsWith(".fifo")) {
+        return post('/api/sqs/message/send/fifo', {
+            queueUrl,
+            messageBody
+        });
+        return
+    }
+
     return post('/api/sqs/message/send', {
         queueUrl,
         delaySeconds,
@@ -45,4 +61,4 @@ const receiveMessage = async (queueUrl, maxNumberOfMessages) => {
     });
 }
 
-export { save, load, delQueue, purge, refresh, sendMessage, receiveMessage };
+export { save, saveFifo, load, delQueue, purge, refresh, sendMessage, receiveMessage };

@@ -12,9 +12,16 @@ FROM debian:bookworm-slim
 
 WORKDIR /app
 
-COPY ./frontend/build /app/
+RUN mkdir frontend && mkdir database
+
+COPY ./frontend/build ./frontend
+COPY ./go-api/migrations/ ./migrations
+COPY ./init.sh .
+COPY ./go-api/docker-env.example ./.env
 COPY --from=builder /app/lsmanager .
+
+RUN chmod +x init.sh
 
 EXPOSE 80
 
-ENTRYPOINT ["./lsmanager"]
+ENTRYPOINT ["./init.sh"]

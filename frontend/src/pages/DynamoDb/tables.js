@@ -45,7 +45,7 @@ const DynamoDbTables = () => {
         if (error !== '') {
             timeoutId = setTimeout(() => {
                 setError('');
-            }, 4000);
+            }, 6000);
         }
 
         return () => {
