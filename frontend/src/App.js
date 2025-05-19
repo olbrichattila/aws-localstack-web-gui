@@ -31,7 +31,7 @@ function App() {
             <MenuOption to="/aws/sns">
               SNS<br /><SnsIcon />
             </MenuOption>
-            <MenuOption to="/asw/dynamodb">
+            <MenuOption to="/aws/dynamodb">
               Dynamo DB<br /><DynamoDbIcon />
             </MenuOption>
             <MenuOption to="/aws/listeners_sns">
