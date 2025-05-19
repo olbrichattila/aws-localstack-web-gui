@@ -21,16 +21,16 @@ const RenderPage = () => {
   return (
     <div className="container">
       <Routes>
-        <Route path='/s3' element={<Layout Component={S3Bucket} Icon={S3Icon} title="S3" />} />
-        <Route path='/s3/:bucketName' element={<Layout Component={S3BucketContent} Icon={S3Icon} title="S3" />} />
-        <Route path='/sqs' element={<Layout Component={SqsPage} Icon={SqsIcon} title="SQS" />} />
-        <Route path='/sns' element={<Layout Component={TopicPage} Icon={SnsIcon} title="SNS" />} />
-        <Route path='/sns/:topicArn' element={<Layout Component={SubscriptionPage} Icon={SnsIcon} title="SNS Subscriptions" />} />
-        <Route path='/dynamodb' element={<Layout Component={DynamoDbTables} Icon={DynamoDbIcon} title="DynamoDB" />} />
-        <Route path='/dynamodb/:tableName' element={<Layout Component={DynamoDbContent} Icon={DynamoDbIcon} title="DynamoDB content" />} />
-        <Route path='/listeners_sns' element={<Layout Component={SNSListenersPage} Icon={SnsIcon} title="SNS Listeners" />} />
-        <Route path='/listeners_sns/:portNum' element={<Layout Component={SNSListPage} Icon={SnsIcon} title="SNS Listeners" />} />
-        <Route path='/settings' element={<Layout Component={SettingsPage} Icon={SettingsIcon} title="Settings" />} />
+        <Route path='/aws/s3' element={<Layout Component={S3Bucket} Icon={S3Icon} title="S3" />} />
+        <Route path='/aws/s3/:bucketName' element={<Layout Component={S3BucketContent} Icon={S3Icon} title="S3" />} />
+        <Route path='/aws/sqs' element={<Layout Component={SqsPage} Icon={SqsIcon} title="SQS" />} />
+        <Route path='/aws/sns' element={<Layout Component={TopicPage} Icon={SnsIcon} title="SNS" />} />
+        <Route path='/aws/sns/:topicArn' element={<Layout Component={SubscriptionPage} Icon={SnsIcon} title="SNS Subscriptions" />} />
+        <Route path='/aws/dynamodb' element={<Layout Component={DynamoDbTables} Icon={DynamoDbIcon} title="DynamoDB" />} />
+        <Route path='/aws/dynamodb/:tableName' element={<Layout Component={DynamoDbContent} Icon={DynamoDbIcon} title="DynamoDB content" />} />
+        <Route path='/aws/listeners_sns' element={<Layout Component={SNSListenersPage} Icon={SnsIcon} title="SNS Listeners" />} />
+        <Route path='/aws/listeners_sns/:portNum' element={<Layout Component={SNSListPage} Icon={SnsIcon} title="SNS Listeners" />} />
+        <Route path='/aws/settings' element={<Layout Component={SettingsPage} Icon={SettingsIcon} title="Settings" />} />
       </Routes>
     </div>
   )

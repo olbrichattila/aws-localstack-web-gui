@@ -59,7 +59,7 @@ const SubscriptionPage = () => {
                 })}
             />
 
-            <Button label="Back to topics" margin={6} onClick={() => navigate('/sns')} />
+            <Button label="Back to topics" margin={6} onClick={() => navigate('/aws/sns')} />
             <Button label="Create new HTTP subscription" margin={6} onClick={() => {
                 setNewSubModelVisible(true);
             }} />

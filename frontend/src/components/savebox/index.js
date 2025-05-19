@@ -5,11 +5,20 @@ import "./index.scss";
 
 const SaveBox = ({
     isOpen = false,
+    numOnly = false,
     title = 'Name',
     onSubmit = () => null,
     onClose = () => null
 }) => {
     const [text, setText] = useState('');
+
+    const onTextChange = (value) => {
+        if (numOnly) {
+            setText(value.replace(/[^0-9]/g, ''))
+            return
+        }
+        setText(value);
+    }
 
     return (
         <Modal
@@ -22,12 +31,12 @@ const SaveBox = ({
                     <input
                         type='text'
                         value={text}
-                        onChange={(e) => setText(e.target.value)}
+                        onChange={(e) => onTextChange(e.target.value)}
                     />
                 </label>
                 <Button
                     onClick={() => {
-                        setText('');
+                        onTextChange('');
                         onSubmit(text);
                     }}
                     label="Save"

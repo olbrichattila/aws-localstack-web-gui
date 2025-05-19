@@ -20,7 +20,7 @@ const S3Bucket = () => {
         }
 
         if (e.name === 'clickable') {
-            navigate(`/s3/${encodeURIComponent(e.i.Name)}`);
+            navigate(`/aws/s3/${encodeURIComponent(e.i.Name)}`);
         }
     }
 

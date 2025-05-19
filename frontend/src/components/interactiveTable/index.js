@@ -38,7 +38,7 @@ const InteractiveTable = ({
                             />
                         </th>
                     )}
-                    <th colSpan={structInfo.events ? structInfo.events.length : 1}></th>
+                    {structInfo.events && <th colSpan={structInfo.events.length}></th>}
                 </tr>
             </thead>
             <tbody>

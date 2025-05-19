@@ -228,25 +228,55 @@ var Routes = []router.ControllerAction{
 
 	// Global routes
 	{
-		Path:        "/s3",
+		Path:        "/aws/s3",
 		RequestType: []string{http.MethodGet},
 		IsStatic:    true,
 		StaticPath:  "/frontend/index.html",
 	},
 	{
-		Path:        "/sqs",
+		Path:        "/aws/s3/:bucket",
 		RequestType: []string{http.MethodGet},
 		IsStatic:    true,
 		StaticPath:  "/frontend/index.html",
 	},
 	{
-		Path:        "/sns",
+		Path:        "/aws/sqs",
 		RequestType: []string{http.MethodGet},
 		IsStatic:    true,
 		StaticPath:  "/frontend/index.html",
 	},
 	{
-		Path:        "/dynamodb",
+		Path:        "/aws/sns",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/index.html",
+	},
+	{
+		Path:        "/aws/sns/:arn",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/index.html",
+	},
+	{
+		Path:        "/aws/dynamodb",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/index.html",
+	},
+	{
+		Path:        "/aws/settings",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/index.html",
+	},
+	{
+		Path:        "/aws/listeners_sns",
+		RequestType: []string{http.MethodGet},
+		IsStatic:    true,
+		StaticPath:  "/frontend/index.html",
+	},
+	{
+		Path:        "/aws/listeners_sns/:port",
 		RequestType: []string{http.MethodGet},
 		IsStatic:    true,
 		StaticPath:  "/frontend/index.html",

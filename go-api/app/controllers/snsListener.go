@@ -7,12 +7,8 @@ import (
 	"github.com/olbrichattila/gofra/pkg/app/gofraerror"
 )
 
-type portItem struct {
-	Port int `json:"port"`
-}
-
 type portsResponse struct {
-	Ports []portItem `json:"ports"`
+	Ports []snslistener.ListenerInfo `json:"ports"`
 }
 
 type SNSListenerController struct {
@@ -53,11 +49,9 @@ func (c *SNSListenerController) GetRequests(port int, sns snslistener.SNSListene
 func (c *SNSListenerController) GetListeners(sns snslistener.SNSListener) portsResponse {
 	ports := sns.GetListeningPorts()
 
-	portItems := make([]portItem, len(ports))
+	portItems := make([]snslistener.ListenerInfo, len(ports))
 	for i, port := range ports {
-		portItems[i] = portItem{
-			Port: port,
-		}
+		portItems[i] = port
 	}
 
 	return portsResponse{

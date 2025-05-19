@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import InteractiveTable from "../../components/interactiveTable";
 import Button from "../../components/button";
 import { getCapturedMessages } from "../../api/sns";

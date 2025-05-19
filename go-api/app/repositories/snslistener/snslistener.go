@@ -7,8 +7,10 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
+	"webuiApi/app/repositories/database"
 )
 
 // SNSRequest represents an SNS subscription or notification request
@@ -27,23 +29,40 @@ type SNSRequest struct {
 
 func New() SNSListener {
 	return &snsListener{
-		listeners:      make(map[int]*http.Server),
+		listeners:      make(map[int]*listener),
 		requestHistory: make(map[int][]SNSRequest),
 		mutex:          &sync.RWMutex{},
 	}
 }
 
+type ListenerInfo struct {
+	Port int    `json:"port"`
+	Info string `json:"info"`
+}
+
 type SNSListener interface {
+	Construct(db database.Database)
 	Listen(port int) error
 	Close(port int) error
 	GetRequests(port int) ([]SNSRequest, error)
-	GetListeningPorts() []int
+	GetListeningPorts() []ListenerInfo
+}
+
+type listener struct {
+	server *http.Server
+	info   string
 }
 
 type snsListener struct {
-	listeners      map[int]*http.Server
+	db             database.Database
+	listeners      map[int]*listener
 	requestHistory map[int][]SNSRequest
 	mutex          *sync.RWMutex
+}
+
+// Construct implements SNSListener.
+func (s *snsListener) Construct(db database.Database) {
+	s.db = db
 }
 
 // Listen implements SNSListener.
@@ -88,6 +107,28 @@ func (s *snsListener) Listen(port int) error {
 			// Return 200 OK with the token to confirm subscription
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(snsReq.Token))
+
+			// Call subscribe URL
+			setting, err := s.db.GetSettings()
+			if err != nil {
+				s.mutex.Lock()
+				if _, ok := s.listeners[port]; ok {
+					s.listeners[port].info = err.Error()
+				}
+				s.mutex.Unlock()
+			}
+
+			alteredSubURL := strings.Replace(snsReq.SubscribeURL, "http://localhost.localstack.cloud:4566", setting.Endpoint, -1)
+
+			_, err = http.Get(alteredSubURL)
+			if err != nil {
+				s.mutex.Lock()
+				if _, ok := s.listeners[port]; ok {
+					s.listeners[port].info = err.Error()
+				}
+				s.mutex.Unlock()
+			}
+
 			return
 		}
 
@@ -100,12 +141,16 @@ func (s *snsListener) Listen(port int) error {
 		Handler: mux,
 	}
 
-	s.listeners[port] = server
+	s.listeners[port] = &listener{server: server, info: "Added"}
 
 	// Start the server in a goroutine
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Printf("HTTP server error: %v\n", err)
+			s.mutex.Lock()
+			if _, ok := s.listeners[port]; ok {
+				s.listeners[port].info = err.Error()
+			}
+			s.mutex.Unlock()
 		}
 	}()
 
@@ -117,7 +162,7 @@ func (s *snsListener) Close(port int) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	server, ok := s.listeners[port]
+	listener, ok := s.listeners[port]
 	if !ok {
 		return fmt.Errorf("no listener on port %d", port)
 	}
@@ -127,7 +172,7 @@ func (s *snsListener) Close(port int) error {
 	defer cancel()
 
 	// Shutdown the server gracefully
-	if err := server.Shutdown(ctx); err != nil {
+	if err := listener.server.Shutdown(ctx); err != nil {
 		return fmt.Errorf("server shutdown error: %w", err)
 	}
 
@@ -150,19 +195,19 @@ func (s *snsListener) GetRequests(port int) ([]SNSRequest, error) {
 }
 
 // GetListeningPorts returns a sorted slice of all ports currently being listened to
-func (s *snsListener) GetListeningPorts() []int {
+func (s *snsListener) GetListeningPorts() []ListenerInfo {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	ports := make([]int, 0, len(s.listeners))
+	ports := make([]ListenerInfo, 0, len(s.listeners))
 	for port := range s.listeners {
-		ports = append(ports, port)
+		ports = append(ports, ListenerInfo{Port: port, Info: s.listeners[port].info})
 	}
 
 	// Sort ports in ascending order
 	for i := range len(ports) - 1 {
 		for j := range len(ports) - i - 1 {
-			if ports[j] > ports[j+1] {
+			if ports[j].Port > ports[j+1].Port {
 				ports[j], ports[j+1] = ports[j+1], ports[j]
 			}
 		}

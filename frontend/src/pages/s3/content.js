@@ -45,7 +45,7 @@ const S3BucketContent = () => {
                     setUploadFileMOdalVisible(false);
 
                 }} />
-            <Button label="<< Back" margin={6} onClick={() => navigate('/s3')} />
+            <Button label="<< Back" margin={6} onClick={() => navigate('/aws/s3')} />
             <Button label="Upload file" margin={6} onClick={() => setUploadFileMOdalVisible(true)} />
             <h3>Bucket name: {bucketName}</h3>
             <FilterBox onSubmit={text => setFilter(text)} />

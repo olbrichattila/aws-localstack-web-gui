@@ -12,7 +12,6 @@ import RenderPage from './pages'
 import ErrorBoundary from './ErrorBoundary';
 
 function App() {
-  const [selectedMenu] = useState(6);
 
   return (
     <BrowserRouter>
@@ -23,30 +22,30 @@ function App() {
       <div className="main-wrapper">
         <div className="left-menu">
           <ul>
-            <MenuOption to="/s3" active={selectedMenu === 1} >
+            <MenuOption to="/aws/s3" >
               S3<br /><S3Icon />
             </MenuOption>
-            <MenuOption to="/sqs" active={selectedMenu === 2} >
+            <MenuOption to="/aws/sqs">
               SQS<br /><SqsIcon />
             </MenuOption>
-            <MenuOption to="/sns"active={selectedMenu === 3} >
+            <MenuOption to="/aws/sns">
               SNS<br /><SnsIcon />
             </MenuOption>
-            <MenuOption to="/dynamodb" active={selectedMenu === 4} >
+            <MenuOption to="/asw/dynamodb">
               Dynamo DB<br /><DynamoDbIcon />
             </MenuOption>
-            <MenuOption to="/listeners_sns" active={selectedMenu === 5} >
+            <MenuOption to="/aws/listeners_sns">
               SNS<br /> Listeners<br /><SnsIcon />
             </MenuOption>
           </ul>
           <ul>
-            <MenuOption to="/settings" active={selectedMenu === 6} >
+            <MenuOption to="/aws/settings">
               Settings<br /><FontAwesomeIcon icon={faCog} />
             </MenuOption>
           </ul>
         </div>
         <ErrorBoundary>
-          <RenderPage selectedMenu={selectedMenu} />
+          <RenderPage />
         </ErrorBoundary>
       </div>
     </div>

@@ -25,7 +25,7 @@ const TopicPage = () => {
         }
 
         if (e.name === 'clickable') {
-            navigate(`/sns/${encodeURIComponent(e.i.TopicArn)}`);
+            navigate(`/aws/sns/${encodeURIComponent(e.i.TopicArn)}`);
         }
     }
 

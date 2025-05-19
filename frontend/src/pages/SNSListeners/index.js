@@ -22,7 +22,7 @@ const SNSListenersPage = () => {
         }
         
         if (e.name === "View") {
-            navigate(`/listeners_sns/${e.i.port}`)            
+            navigate(`/aws/listeners_sns/${e.i.port}`)            
         }
     };
 
@@ -36,6 +36,7 @@ const SNSListenersPage = () => {
             <SaveBox
                 isOpen={modalVisible}
                 onClose={() => setModalVisible(false)}
+                numOnly={true}
                 title="New Port:"
                 onSubmit={(message) => {
                     setModalVisible(false);
@@ -75,6 +76,11 @@ const SNSListenersPage = () => {
                             {
                                 field: "port",
                                 title: "Port",
+                                clickable: false,
+                            },
+                            {
+                                field: "info",
+                                title: "Status",
                                 clickable: false,
                             },
                         ],

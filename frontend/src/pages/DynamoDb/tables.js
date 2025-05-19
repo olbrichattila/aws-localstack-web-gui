@@ -21,7 +21,7 @@ const DynamoDbTables = () => {
         }
 
         if (e.name === 'clickable') {
-            navigate(`/dynamodb/${encodeURIComponent(e.i.tableName)}`)
+            navigate(`/aws/dynamodb/${encodeURIComponent(e.i.tableName)}`)
         }
     }
 
