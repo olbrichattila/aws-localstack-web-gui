@@ -155,6 +155,12 @@ var Routes = []router.ControllerAction{
 		ActionName:  "SNSPublishToTopicARN",
 	},
 	{
+		Path:        "/api/sns/sub/:arn/publish_fifo",
+		RequestType: []string{http.MethodOptions, http.MethodPost},
+		Controller:  func() any { return &controller.SNSController{} },
+		ActionName:  "SNSPublishFIFOToTopicARN",
+	},
+	{
 		Path:        "/api/sns/sub/:arn",
 		RequestType: []string{http.MethodOptions, http.MethodGet},
 		Controller:  func() any { return &controller.SNSController{} },

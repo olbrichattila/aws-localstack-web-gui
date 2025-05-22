@@ -28,9 +28,14 @@ type tableCreateRequest struct {
 	Fields []tableField `json:"fields"`
 }
 
-func (c *DynamoDBController) Before(awsShared awsshared.AWSShared) {
-	// TODO add error handling
-	c.client, c.ctx, _ = awsShared.GetDynamoDBClient()
+func (c *DynamoDBController) Before(awsShared awsshared.AWSShared) error {
+	var err error
+	c.client, c.ctx, err = awsShared.GetDynamoDBClient()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *DynamoDBController) DynamoDBListTablesWithStartTable(limit int, exclusiveStartTable string, r request.Requester) (string, error) {

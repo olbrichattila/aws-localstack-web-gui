@@ -35,6 +35,13 @@ type sqsSendMessageRequest struct {
 	MessageBody  string `json:"messageBody"`
 }
 
+type sqsSendFIFOMessageRequest struct {
+	MessageGroupId         string `json:"messageGroupId"`
+	MessageDeduplicationId string `json:"messageDeduplicationId"`
+	QueueUrl               string `json:"queueUrl"`
+	MessageBody            string `json:"messageBody"`
+}
+
 type sqsReadMessageRequest struct {
 	QueueUrl            string `json:"queueUrl"`
 	MaxNumberOfMessages int    `json:"maxNumberOfMessages"`
@@ -186,10 +193,10 @@ func (s *SQSController) SQSendMessageAction(req sqsSendMessageRequest) (string, 
 	return "{}", nil
 }
 
-func (s *SQSController) SQSendFIFOMessageAction(req sqsSendMessageRequest) (string, error) {
+func (s *SQSController) SQSendFIFOMessageAction(req sqsSendFIFOMessageRequest) (string, error) {
 	_, err := s.client.SendMessage(*s.ctx, &sqs.SendMessageInput{
-		MessageGroupId:         aws.String("group-1"), // required
-		MessageDeduplicationId: aws.String("unique-id-123"),
+		MessageGroupId:         &req.MessageGroupId,
+		MessageDeduplicationId: &req.MessageDeduplicationId,
 		MessageBody:            &req.MessageBody,
 		QueueUrl:               &req.QueueUrl,
 	})

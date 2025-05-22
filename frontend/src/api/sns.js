@@ -22,6 +22,13 @@ const publish = (topicArn, message) => {
     });
 };
 
+const publishFIFO = (topicArn, message) => {
+    return post(
+        `/api/sns/sub/${encodeURIComponent(topicArn)}/publish_fifo`,
+        message
+    );
+};
+
 const subList = async (topicArn) => {
     return get(`/api/sns/sub/${encodeURIComponent(topicArn)}`);
 };
@@ -52,6 +59,7 @@ export {
     deleteTopic,
     sendHttpMessage,
     publish,
+    publishFIFO,
     subList,
     deleteSub,
     listeners,

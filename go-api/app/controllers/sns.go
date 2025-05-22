@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 	"webuiApi/app/repositories/awsshared"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -23,6 +24,12 @@ type topicRequest struct {
 
 type topicMessageRequest struct {
 	Message string `json:"message"`
+}
+
+type fifoTopicMessageRequest struct {
+	Message                string `json:"message"`
+	MessageGroupId         string `json:"messageGroupId"`
+	MessageDeduplicationId string `json:"messageDeduplicationId"`
 }
 
 type topicSubscribeRequest struct {
@@ -76,15 +83,23 @@ func (c *SNSController) getSNSAttribute(client *sns.Client, ctx *context.Context
 }
 
 func (c *SNSController) SNSCreateTopic(req topicRequest) (string, error) {
-	_, err := c.client.CreateTopic(*c.ctx, &sns.CreateTopicInput{
+	input := &sns.CreateTopicInput{
 		Name: &req.Name,
-	})
+	}
 
+	if strings.HasSuffix(req.Name, ".fifo") {
+		input.Attributes = map[string]string{
+			"FifoTopic": "true",
+		}
+	}
+
+	_, err := c.client.CreateTopic(*c.ctx, input)
 	if err != nil {
 		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
 
 	return c.SNSGetAttributes()
+
 }
 
 func (c *SNSController) SNSDeleteTopic(req topicRequest) (string, error) {
@@ -103,6 +118,21 @@ func (c *SNSController) SNSPublishToTopicARN(topicArn string, req topicMessageRe
 	_, err := c.client.Publish(*c.ctx, &sns.PublishInput{
 		Message:  &req.Message,
 		TopicArn: aws.String(topicArn),
+	})
+
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
+
+	return "{}", nil
+}
+
+func (c *SNSController) SNSPublishFIFOToTopicARN(topicArn string, req fifoTopicMessageRequest) (string, error) {
+	_, err := c.client.Publish(*c.ctx, &sns.PublishInput{
+		Message:                &req.Message,
+		TopicArn:               aws.String(topicArn),
+		MessageGroupId:         &req.MessageGroupId,
+		MessageDeduplicationId: &req.MessageDeduplicationId,
 	})
 
 	if err != nil {

@@ -9,10 +9,18 @@
         display: flex;
         flex-grow: 1;
         line-height: 35px;
-    
-        input {
+
+        input, textarea {
             flex-grow: 1;
             width: 350px;
+        }
+    }
+
+    &.vertical {
+        flex-direction: column;
+
+        label {
+            margin: 12px 0;
         }
     }
 }

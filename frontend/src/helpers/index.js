@@ -22,8 +22,17 @@ const valueByPath = (obj, path) => {
     return path
         .split(".")
         .reduce(
-            (acc, key) =>
-                acc && acc[key] !== "undefined" ? `${acc[key]}` : undefined,
+            (acc, key) => {
+                if (acc === undefined) {
+                    return "undefined"
+                }
+
+                if (acc[key] == undefined) {
+                    return "undefined"
+                }
+
+                return acc[key]
+            },
             obj
         );
 };

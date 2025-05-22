@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { load, save, saveFifo, delQueue, purge, refresh } from "../../api/sqs";
 import SaveBox from "../../components/savebox";
 import SendSqsMessageModal from "../../components/sendSqsMessageModal";
+import SendFIFOSqsMessageModal from "../../components/sendSqsMessageModal/fifo";
 import FilterBox from "../../components/filterBox";
 import Button from "../../components/button";
 import Spacer from "../../components/spacer";
@@ -13,6 +14,7 @@ const SqsPage = () => {
     const [data, setData] = useState([]);
     const [watch, setWatch] = useState("");
     const [sendQueue, setSendQueue] = useState("");
+    const [sendFIFOQueue, setSendFIFOQueue] = useState("");
     const [filter, setFilter] = useState("");
     const [newQueueModalOpen, setNewQueueModalOpen] = useState(false);
     const [newFIFOQueueModalOpen, setNewFIFOQueueModalOpen] = useState(false);
@@ -35,7 +37,11 @@ const SqsPage = () => {
                 setWatch(e.w ? e.i.url : "");
                 break;
             case "Send Message":
-                setSendQueue(e.i.url);
+                if (e.i.url.endsWith(".fifo")) {
+                    setSendFIFOQueue(e.i.url);
+                } else {
+                    setSendQueue(e.i.url);
+                }
                 break;
             case "Read Message":
                 setSqsReadUrl(e.i.url);
@@ -83,9 +89,8 @@ const SqsPage = () => {
             setNewQueueModalOpen(false);
         }
         if (newFIFOQueueModalOpen) {
-            setNewFIFOQueueModalOpen(false)
+            setNewFIFOQueueModalOpen(false);
         }
-        
     }, [data]);
 
     useEffect(() => {
@@ -112,6 +117,16 @@ const SqsPage = () => {
                 onSent={(url) => {
                     refresh(url).then((r) => refreshQueue(r, url));
                     setSendQueue("");
+                }}
+            />
+
+            <SendFIFOSqsMessageModal
+                queueUrl={sendFIFOQueue}
+                isOpen={sendFIFOQueue !== ""}
+                onClose={() => setSendFIFOQueue("")}
+                onSent={(url) => {
+                    refresh(url).then((r) => refreshQueue(r, url));
+                    setSendFIFOQueue("");
                 }}
             />
 
