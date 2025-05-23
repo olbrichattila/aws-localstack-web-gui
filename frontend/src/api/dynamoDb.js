@@ -14,4 +14,8 @@ const createTable = async (payload) => {
   return post(`/api/dynamodb`, payload);
 }
 
-export { listTables, deleteTable, createTable };
+const scanTable = async (payload) => {
+  return post(`/api/scan_dynamodb`, payload);
+}
+
+export { listTables, deleteTable, createTable, scanTable };

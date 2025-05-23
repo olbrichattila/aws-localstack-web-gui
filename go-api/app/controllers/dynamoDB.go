@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"webuiApi/app/repositories/awsshared"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/olbrichattila/gofra/pkg/app/gofraerror"
@@ -26,6 +27,22 @@ type tableField struct {
 type tableCreateRequest struct {
 	Name   string       `json:"name"`
 	Fields []tableField `json:"fields"`
+}
+
+type tableScanRequest struct {
+	TableName         string                          `json:"tableName"`
+	Limit             int32                           `json:"limit"`
+	ExclusiveStartKey map[string]types.AttributeValue `exclusiveStartKey:"startKey"`
+}
+
+type tableScanResponse struct {
+	Items             []map[string]types.AttributeValue `json:"items"`
+	ExclusiveStartKey map[string]types.AttributeValue   `exclusiveStartKey:"startKey"`
+}
+
+type insertItemToDynamoDBRequest struct {
+	TableName string                 `json:"tableName"`
+	Item      map[string]interface{} `json:"item"`
 }
 
 func (c *DynamoDBController) Before(awsShared awsshared.AWSShared) error {
@@ -101,6 +118,53 @@ func (c *DynamoDBController) DynamoDBDeleteTable(tableName string) (string, erro
 		TableName: &tableName,
 	})
 
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
+
+	return "{}", nil
+}
+
+func (c *DynamoDBController) DynamoDBListTableContent(req tableScanRequest) (tableScanResponse, error) {
+	response := &tableScanResponse{
+		Items: []map[string]types.AttributeValue{},
+	}
+
+	var startKey map[string]types.AttributeValue = req.ExclusiveStartKey
+
+	for {
+		result, err := c.client.Scan(*c.ctx, &dynamodb.ScanInput{
+			TableName:         &req.TableName,
+			Limit:             &req.Limit,
+			ExclusiveStartKey: startKey,
+		})
+		if err != nil {
+			return *response, gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+		}
+
+		response.Items = append(response.Items, result.Items...)
+
+		if result.LastEvaluatedKey == nil || len(result.LastEvaluatedKey) == 0 {
+			break
+		}
+
+		startKey = result.LastEvaluatedKey
+		response.ExclusiveStartKey = result.LastEvaluatedKey
+	}
+
+	return *response, nil
+}
+
+func (c *DynamoDBController) DynamoDBInsertItem(req insertItemToDynamoDBRequest) (string, error) {
+	dynamoItem, err := attributevalue.MarshalMap(req.Item)
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
+
+	_, err = c.client.PutItem(context.TODO(), &dynamodb.PutItemInput{
+		TableName: &req.TableName,
+		Item:      dynamoItem,
+	})
 	if err != nil {
 		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}

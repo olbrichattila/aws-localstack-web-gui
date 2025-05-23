@@ -231,6 +231,18 @@ var Routes = []router.ControllerAction{
 		Controller:  func() any { return &controller.DynamoDBController{} },
 		ActionName:  "DynamoDBDeleteTable",
 	},
+	{
+		Path:        "/api/scan_dynamodb",
+		RequestType: []string{http.MethodOptions, http.MethodPost},
+		Controller:  func() any { return &controller.DynamoDBController{} },
+		ActionName:  "DynamoDBListTableContent",
+	},
+	{
+		Path:        "/api/insert_dynamodb",
+		RequestType: []string{http.MethodOptions, http.MethodPost},
+		Controller:  func() any { return &controller.DynamoDBController{} },
+		ActionName:  "DynamoDBInsertItem",
+	},
 
 	// Global routes
 	{
