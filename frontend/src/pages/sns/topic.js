@@ -79,6 +79,20 @@ const TopicPage = () => {
                 }
             />
 
+            <SaveBox
+                isOpen={messageArn !== ""}
+                onClose={() => setMessageArn("")}
+                title="New message:"
+                onSubmit={(message) =>
+                    publish(messageArn, message).then(() =>
+                        load().then((r) => {
+                            setData(r);
+                            setMessageArn("");
+                        })
+                    )
+                }
+            />
+
             <SaveFIFOBox
                 isOpen={fifoMessageArn !== ""}
                 onClose={() => setFIFOMessageArn("")}
@@ -88,20 +102,6 @@ const TopicPage = () => {
                         load().then((r) => {
                             setData(r);
                             setFIFOMessageArn("");
-                        })
-                    )
-                }
-            />
-
-            <SaveFIFOBox
-                isOpen={messageArn !== ""}
-                onClose={() => setMessageArn("")}
-                title="New message:"
-                onSubmit={(message) =>
-                    publish(messageArn, message).then(() =>
-                        load().then((r) => {
-                            setData(r);
-                            setMessageArn("");
                         })
                     )
                 }

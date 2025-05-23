@@ -30,14 +30,14 @@ type tableCreateRequest struct {
 }
 
 type tableScanRequest struct {
-	TableName         string                          `json:"tableName"`
-	Limit             int32                           `json:"limit"`
-	ExclusiveStartKey map[string]types.AttributeValue `exclusiveStartKey:"startKey"`
+	TableName         string                 `json:"tableName"`
+	Limit             int32                  `json:"limit"`
+	ExclusiveStartKey map[string]interface{} `json:"startKey"`
 }
 
 type tableScanResponse struct {
 	Items             []map[string]types.AttributeValue `json:"items"`
-	ExclusiveStartKey map[string]types.AttributeValue   `exclusiveStartKey:"startKey"`
+	ExclusiveStartKey map[string]types.AttributeValue   `json:"startKey"`
 }
 
 type insertItemToDynamoDBRequest struct {
@@ -130,7 +130,15 @@ func (c *DynamoDBController) DynamoDBListTableContent(req tableScanRequest) (tab
 		Items: []map[string]types.AttributeValue{},
 	}
 
-	var startKey map[string]types.AttributeValue = req.ExclusiveStartKey
+	// This is broken as startKey mismatches if I get back from the API, no pagination until I figure out
+
+	// convertedStartKey, err := attributevalue.MarshalMap(req.ExclusiveStartKey)
+	// if err != nil {
+	// 	return *response, gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	// }
+
+	// var startKey map[string]types.AttributeValue = convertedStartKey
+	var startKey map[string]types.AttributeValue
 
 	for {
 		result, err := c.client.Scan(*c.ctx, &dynamodb.ScanInput{
