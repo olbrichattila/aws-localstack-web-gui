@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useAppContext } from '../../AppContext';
 import Button from "../../components/button";
-import { getSettings, saveSettings } from "../../api/settings";
+// import { getSettings, saveSettings } from "../../api/settings";
 import "./index.scss";
 
 const initialFormState = {
@@ -11,13 +12,22 @@ const initialFormState = {
 };
 
 const SettingsPage = () => {
+    const { get, post } = useAppContext();
     const [error, setError] = useState("");
     const [formState, setFormState] = useState(initialFormState);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
+
+    const getSettings = async () => {
+        return get("/api/settings");
+    };
+
+    const saveSettings = async (request) => {
+        return post("/api/settings", request);
+    };
 
     const save = () => {
         saveSettings(formState).then((settings) => {
-            setMessage('Settings saved successfully');
+            setMessage("Settings saved successfully");
             assignSettingsToForm(settings);
         });
     };
@@ -52,12 +62,11 @@ const SettingsPage = () => {
         };
     }, [error]);
 
-
     useEffect(() => {
         let messageDisplayTimeoutId = -1;
-        if (message !== '') {
+        if (message !== "") {
             messageDisplayTimeoutId = setTimeout(() => {
-                setMessage('');
+                setMessage("");
             }, 2000);
         }
 
@@ -71,8 +80,8 @@ const SettingsPage = () => {
     return (
         <div className="settings">
             {error !== "" && <div className="errorLine">{error}</div>}
-            {message !== '' && <div className="messageLine">{message}</div>}
-            
+            {message !== "" && <div className="messageLine">{message}</div>}
+
             <label>
                 Region:
                 <input

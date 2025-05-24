@@ -1,6 +1,8 @@
 import { BrowserRouter } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
+import { useAppContext } from "./AppContext";
+import Loader from "./components/loader";
 import SqsIcon from "./icons/sqs";
 import SnsIcon from "./icons/sns";
 import DynamoDbIcon from "./icons/dynamoDb";
@@ -11,7 +13,10 @@ import ErrorBoundary from "./ErrorBoundary";
 import "./App.scss";
 
 function App() {
+    const { isLoading } = useAppContext();
     return (
+        <>
+        {isLoading && <Loader />}
         <BrowserRouter>
             <div className="App">
                 <header className="App-header">
@@ -61,6 +66,7 @@ function App() {
                 </div>
             </div>
         </BrowserRouter>
+        </>
     );
 }
 

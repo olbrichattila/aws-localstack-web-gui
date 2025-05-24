@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { load, save, saveFifo, delQueue, purge, refresh } from "../../api/sqs";
+import { useState, useEffect } from "react";
+import { useAppContext } from "../../AppContext";
 import SaveBox from "../../components/savebox";
 import SendSqsMessageModal from "../../components/sendSqsMessageModal";
 import SendFIFOSqsMessageModal from "../../components/sendSqsMessageModal/fifo";
@@ -11,6 +11,7 @@ import "./index.scss";
 import InteractiveTable from "../../components/interactiveTable";
 
 const SqsPage = () => {
+    const { get, post, del } = useAppContext();
     const [data, setData] = useState([]);
     const [watch, setWatch] = useState("");
     const [sendQueue, setSendQueue] = useState("");
@@ -20,6 +21,47 @@ const SqsPage = () => {
     const [newFIFOQueueModalOpen, setNewFIFOQueueModalOpen] = useState(false);
     const [sqsReadUrl, setSqsReadUrl] = useState("");
     const [error, setError] = useState("");
+
+    // API Calls
+    const load = async () => {
+        return get("/api/sqs/attributes");
+    };
+
+    const save = async (queueName) => {
+        return post("/api/sqs", {
+            name: queueName,
+            delaySeconds: 5,
+            maximumMessageSize: 4096,
+        });
+    };
+
+    const saveFifo = async (queueName) => {
+        return post("/api/sqs/fifo", {
+            messageGroupId: "1234",
+            messageDeduplicationId: "5678",
+            name: queueName,
+            maximumMessageSize: 4096,
+        });
+    };
+
+    const delQueue = async (queueUrl) => {
+        del("/api/sqs", {
+            queueUrl: queueUrl,
+        });
+    };
+
+    const purge = async (queueUrl) => {
+        return del("/api/sqs/purge", {
+            queueUrl: queueUrl,
+        });
+    };
+
+    const refresh = async (queueUrl) => {
+        return post("/api/sqs/attributes", {
+            queueUrl: queueUrl,
+        });
+    };
+    // END API Calls
 
     const onEvent = (e) => {
         switch (e.name) {

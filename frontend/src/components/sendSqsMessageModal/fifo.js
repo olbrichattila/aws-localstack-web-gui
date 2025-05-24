@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useAppContext } from "../../AppContext";
 import Modal from "../modal";
-import { sendFIFOMessage } from "../../api/sqs";
-import { integerOnly } from "../../helpers";
 import Button from "../button";
 import "./index.scss";
 
@@ -12,8 +11,19 @@ const initialInputParams = {
 };
 
 const SendFIFOSqsMessageModal = ({ isOpen, onClose, onSent, queueUrl }) => {
+    const { post } = useAppContext();
     const [inputParams, setInputParams] = useState(initialInputParams);
     const [errors, setErrors] = useState([]);
+
+    // API
+    const sendFIFOMessage = async (queueUrl, messageGroupId, messageDeduplicationId,  messageBody) => {
+        return post("/api/sqs/message/send/fifo", {
+            messageGroupId: messageGroupId,
+            messageDeduplicationId: messageDeduplicationId,
+            queueUrl,
+            messageBody,
+        });
+    };
 
     const validate = () => {
         const errors = [];

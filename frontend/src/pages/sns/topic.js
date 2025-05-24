@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { deleteTopic, load, save, publish, publishFIFO } from "../../api/sns";
+import { useAppContext } from "../../AppContext";
 import FilterBox from "../../components/filterBox";
 import Spacer from "../../components/spacer";
 import SaveBox from "../../components/savebox";
@@ -10,12 +10,40 @@ import InteractiveTable from "../../components/interactiveTable";
 
 const TopicPage = () => {
     const navigate = useNavigate();
+    const { get, post, del } = useAppContext();
     const [data, setData] = useState([]);
     const [filter, setFilter] = useState("");
     const [newTopicModalOpen, setNewTopicModalOpen] = useState(false);
     const [messageArn, setMessageArn] = useState("");
     const [fifoMessageArn, setFIFOMessageArn] = useState("");
     const [error, setError] = useState("");
+
+    // APIS
+    const load = async () => {
+        return get("/api/sns/attributes");
+    };
+
+    const save = async (name) => {
+        return post("/api/sns", { name });
+    };
+
+    const deleteTopic = async (name) => {
+        return del("/api/sns", { name });
+    };
+
+    const publish = (topicArn, message) => {
+        return post(`/api/sns/sub/${encodeURIComponent(topicArn)}/publish`, {
+            message,
+        });
+    };
+
+    const publishFIFO = (topicArn, message) => {
+        return post(
+            `/api/sns/sub/${encodeURIComponent(topicArn)}/publish_fifo`,
+            message
+        );
+    };
+    // END APIS
 
     const onEvent = (e) => {
         if (e.name === "Delete") {

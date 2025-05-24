@@ -1,14 +1,20 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import InteractiveTable from "../../components/interactiveTable";
-import { scanTable } from "../../api/dynamoDb";
+import { useAppContext } from "../../AppContext";
 import Button from "../../components/button";
 
 const DynamoDbContent = () => {
+    const { post } = useAppContext();
     const [data, setData] = useState([]);
     const [error, setError] = useState("");
     const navigate = useNavigate();
     const { tableName } = useParams();
+
+    // API call
+    const scanTable = async (payload) => {
+        return post(`/api/scan_dynamodb`, payload);
+    };
 
     useState(() => {
         const payload = {
@@ -35,7 +41,9 @@ const DynamoDbContent = () => {
                 onClick={() => navigate("/aws/dynamodb")}
             />
             <h3>Table name: {tableName}</h3>
-            {error !== '' && <div className="errorLine">{error.message ?? error}</div>}
+            {error !== "" && (
+                <div className="errorLine">{error.message ?? error}</div>
+            )}
             <p>
                 Note: This feature is under development, insert, delete and
                 pagination coming soon,

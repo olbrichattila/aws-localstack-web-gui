@@ -1,13 +1,19 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useAppContext } from "../../AppContext";
 import InteractiveTable from "../../components/interactiveTable";
 import Button from "../../components/button";
-import { getCapturedMessages } from "../../api/sns";
 
 const SNSListPage = () => {
+    const { get } = useAppContext();
     const { portNum } = useParams();
-    const [data, setData] = React.useState([]);
+    const [data, setData] = useState([]);
     const [error, setError] = useState("");
+
+    //API
+    const getCapturedMessages = async (port) => {
+        return get(`/api/sns/listener/${port}/get`);
+    };
 
     useEffect(() => {
         getCapturedMessages(portNum)
@@ -17,18 +23,19 @@ const SNSListPage = () => {
 
     return (
         <div>
-           
             <Button
                 label="Refresh"
                 margin={6}
                 onClick={() => {
                     getCapturedMessages(portNum)
-                    .then((data) => setData(data))
-                    .catch((err) => setError(err.message ?? "Error fetching data"));
+                        .then((data) => setData(data))
+                        .catch((err) =>
+                            setError(err.message ?? "Error fetching data")
+                        );
                 }}
             />
             {error !== "" && <div className="errorLine">{error}</div>}
-            
+
             {data && data.requests && (
                 <InteractiveTable
                     structInfo={{
@@ -91,7 +98,7 @@ const SNSListPage = () => {
                         ],
                     }}
                     data={data.requests}
-                    filter={''}
+                    filter={""}
                     onEvent={(e) => console.log(e)}
                 />
             )}
