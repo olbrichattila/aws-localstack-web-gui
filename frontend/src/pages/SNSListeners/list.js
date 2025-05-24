@@ -99,7 +99,7 @@ const SNSListPage = () => {
                     }}
                     data={data.requests}
                     filter={""}
-                    onEvent={(e) => console.log(e)}
+                    //onEvent={(e) => console.log(e)}
                 />
             )}
         </div>
