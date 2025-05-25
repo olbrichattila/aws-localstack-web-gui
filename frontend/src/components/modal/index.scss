@@ -7,6 +7,19 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     z-index: 999;
+    opacity: 0.5;
+
+    &.visible {
+        transition: all 0.3s ease-in;
+        opacity: 1;
+    }
+
+
+    &.visible > .modal-content {
+        transition: all 0.3s ease-in;
+        top: 45%;
+        
+    }
 
     .modal-content {
         position: fixed;
