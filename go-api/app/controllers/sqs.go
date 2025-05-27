@@ -50,7 +50,6 @@ type sqsReadMessageRequest struct {
 func (s *SQSController) Before(awsShared awsshared.AWSShared) error {
 	var err error
 	s.client, s.ctx, err = awsShared.GetSQSClient()
-
 	if err != nil {
 		return gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
 	}
@@ -135,7 +134,6 @@ func (s *SQSController) SQSCreateFIFOQueueAction(req sqsAddQueueRequest) (string
 }
 
 func (s *SQSController) SQSDeleteQueueAction(req sqsQueueRequest) (string, error) {
-
 	_, err := s.client.DeleteQueue(*s.ctx, &sqs.DeleteQueueInput{
 		QueueUrl: &req.QueueUrl,
 	})
@@ -153,6 +151,9 @@ func (s *SQSController) SQSGetAttributeAction(req sqsQueueRequest) (string, erro
 			types.QueueAttributeNameAll,
 		},
 	})
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
 
 	res, err := json.Marshal(attrsOutput.Attributes)
 	if err != nil {

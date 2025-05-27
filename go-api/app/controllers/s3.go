@@ -94,6 +94,9 @@ func (s *S3Controller) getBucketContent(bucketName string) (string, error) {
 	output, err := s.s3Client.ListObjects(*s.ctx, &s3.ListObjectsInput{
 		Bucket: aws.String(bucketName),
 	})
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusInternalServerError)
+	}
 
 	if output.Contents == nil {
 		return "[]", nil
@@ -237,7 +240,6 @@ func (s *S3Controller) ViewFile(w http.ResponseWriter, req request.Requester) {
 
 // DeleteFile function can take any parameters defined in the Di config
 func (s *S3Controller) DeleteFile(req s3UploadRequest, w http.ResponseWriter) (string, error) {
-
 	// Delete object
 	_, err := s.s3Client.DeleteObject(*s.ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(req.BucketName),

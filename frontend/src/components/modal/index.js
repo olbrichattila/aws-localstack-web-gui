@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef} from "react";
 import "./index.scss"; // Import your modal styles
 
 const Modal = ({ isOpen, onClose, children }) => {
