@@ -14,17 +14,19 @@ import (
 )
 
 // SNSRequest represents an SNS subscription or notification request
+
 type SNSRequest struct {
-	Type             string `json:"Type"`
-	SubscribeURL     string `json:"SubscribeURL,omitempty"`
-	Token            string `json:"Token,omitempty"`
-	TopicArn         string `json:"TopicArn,omitempty"`
-	Message          string `json:"Message,omitempty"`
-	MessageID        string `json:"MessageId,omitempty"`
-	Timestamp        string `json:"Timestamp,omitempty"`
-	SignatureVersion string `json:"SignatureVersion,omitempty"`
-	Signature        string `json:"Signature,omitempty"`
-	SigningCertURL   string `json:"SigningCertURL,omitempty"`
+	Type              string          `json:"Type"`
+	SubscribeURL      string          `json:"SubscribeURL,omitempty"`
+	Token             string          `json:"Token,omitempty"`
+	TopicArn          string          `json:"TopicArn,omitempty"`
+	Message           string          `json:"Message,omitempty"`
+	MessageID         string          `json:"MessageId,omitempty"`
+	Timestamp         string          `json:"Timestamp,omitempty"`
+	SignatureVersion  string          `json:"SignatureVersion,omitempty"`
+	Signature         string          `json:"Signature,omitempty"`
+	SigningCertURL    string          `json:"SigningCertURL,omitempty"`
+	MessageAttributes json.RawMessage `json:"MessageAttributes,omitempty"`
 }
 
 func New() SNSListener {
@@ -44,6 +46,7 @@ type SNSListener interface {
 	Construct(db database.Database)
 	Listen(port int) error
 	Close(port int) error
+	Purge(port int) error
 	GetRequests(port int) ([]SNSRequest, error)
 	GetListeningPorts() []ListenerInfo
 }
@@ -178,6 +181,16 @@ func (s *snsListener) Close(port int) error {
 
 	// Remove from listeners map
 	delete(s.listeners, port)
+	return nil
+}
+
+// Close implements SNSListener.
+func (s *snsListener) Purge(port int) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	delete(s.requestHistory, port)
+
 	return nil
 }
 

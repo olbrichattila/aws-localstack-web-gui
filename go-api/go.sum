@@ -84,6 +84,8 @@ github.com/olbrichattila/godi v1.0.18 h1:JNh2Fov/8OBGkWmeOBIcBTlm4gy2Qj7n4QTrcNo
 github.com/olbrichattila/godi v1.0.18/go.mod h1:A1b6+kCJZzoujK4adFE9Yt0ACJQxm0O3ib6N0VavUwQ=
 github.com/olbrichattila/gofra v1.0.15 h1:rmwMVrsZRTBPdcij4uIL3yQVyo0s4WWwaw8qm4WNW88=
 github.com/olbrichattila/gofra v1.0.15/go.mod h1:VMdUYVmaeO7G/FvcwGhh3Gi7ntBkDVlx03MiCTwYqv8=
+github.com/olbrichattila/gofra v1.0.20 h1:UZiWYZhiUPdSYwaipoc/V47KYzCwK5RH2R1OqgC96sM=
+github.com/olbrichattila/gofra v1.0.20/go.mod h1:VMdUYVmaeO7G/FvcwGhh3Gi7ntBkDVlx03MiCTwYqv8=
 github.com/olbrichattila/gosqlbuilder v1.0.5 h1:wuZorTTvyZz3PE+JicQzukC5QBPhi7/iKbVyL0UMrMg=
 github.com/olbrichattila/gosqlbuilder v1.0.5/go.mod h1:5byeuAOdPbR2dfIAtCCQZ9BpYVZYmRFgO4m0Rv2vS78=
 github.com/onsi/ginkgo v1.16.5 h1:8xi0RTUf59SOSfEtZMvwTvXYMzG4gV23XVHOZiXNtnE=

@@ -19,22 +19,28 @@ const resort = (data, field, asc) => {
 };
 
 const valueByPath = (obj, path) => {
-    return path
-        .split(".")
-        .reduce(
-            (acc, key) => {
-                if (acc === undefined) {
-                    return "undefined"
-                }
+    const res = path.split(".").reduce((acc, key) => {
+        if (acc === undefined) {
+            return "";
+        }
 
-                if (acc[key] == undefined) {
-                    return "undefined"
-                }
+        if (acc[key] == undefined) {
+            return "";
+        }
 
-                return acc[key]
-            },
-            obj
-        );
+        return acc[key];
+    }, obj);
+
+    if (
+        res &&
+        typeof res === "object" &&
+        !Array.isArray(res) &&
+        Object.prototype.toString.call(res) === "[object Object]"
+    ) {
+        return JSON.stringify(res);
+    }
+
+    return res;
 };
 
 const handleOpenS3Object = (bucketName, fileName) => {

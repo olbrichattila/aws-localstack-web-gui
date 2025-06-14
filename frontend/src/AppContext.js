@@ -32,30 +32,38 @@ export const AppProvider = ({ children }) => {
         }
 
         try {
-            setIsLoading(true); 
+            setIsLoading(true);
             const response = await fetch(
                 `${process.env.REACT_APP_API_URL}${path}`,
                 options
             );
+
+            const rawText = await response.text(); // Read body once
+
             if (!response.ok) {
-                const json = await response.json();
                 let message = "Whoops, something went wrong";
 
-                if (json.error) {
-                    message = json.error;
-                } else if (json.errors) {
-                    message = json.errors;
+                try {
+                    const json = JSON.parse(rawText); // Try parsing it manually
+
+                    if (json.error) {
+                        message = json.error;
+                    } else if (json.errors) {
+                        message = json.errors;
+                    }
+                } catch {
+                    message = rawText; // Use plain text as fallback
                 }
 
                 throw new Error(message);
             }
 
-            const data = await response.json();
-            setIsLoading(false); 
-
+            // If ok, parse the original text as JSON
+            const data = JSON.parse(rawText);
+            setIsLoading(false);
             return data;
         } catch (error) {
-            setIsLoading(false); 
+            setIsLoading(false);
             throw error;
         }
     };

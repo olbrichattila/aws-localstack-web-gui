@@ -4,6 +4,7 @@ import { useAppContext } from "../../AppContext";
 import FilterBox from "../../components/filterBox";
 import Spacer from "../../components/spacer";
 import SaveBox from "../../components/savebox";
+import SaveSNS from "../../components/savebox/sns";
 import SaveFIFOBox from "../../components/savebox/fifo";
 import Button from "../../components/button";
 import InteractiveTable from "../../components/interactiveTable";
@@ -32,9 +33,10 @@ const TopicPage = () => {
     };
 
     const publish = (topicArn, message) => {
-        return post(`/api/sns/sub/${encodeURIComponent(topicArn)}/publish`, {
-            message,
-        });
+        return post(
+            `/api/sns/sub/${encodeURIComponent(topicArn)}/publish`,
+            message
+        );
     };
 
     const publishFIFO = (topicArn, message) => {
@@ -107,32 +109,44 @@ const TopicPage = () => {
                 }
             />
 
-            <SaveBox
+            <SaveSNS
                 isOpen={messageArn !== ""}
                 onClose={() => setMessageArn("")}
                 title="New message:"
-                onSubmit={(message) =>
-                    publish(messageArn, message).then(() =>
-                        load().then((r) => {
-                            setData(r);
+                onSubmit={(message) => {
+                    publish(messageArn, message)
+                        .then(() =>
+                            load().then((r) => {
+                                setData(r);
+                                setMessageArn("");
+                            })
+                        )
+                        .catch((err) => {
+                            const errorToDisplay = err.message ?? "Error fetching data"
+                            setError("It looks like the message attributes are not following AWS attribute format: (" +errorToDisplay + ")");
                             setMessageArn("");
-                        })
-                    )
-                }
+                        });
+                }}
             />
 
             <SaveFIFOBox
                 isOpen={fifoMessageArn !== ""}
                 onClose={() => setFIFOMessageArn("")}
                 title="New FIFO message:"
-                onSubmit={(message) =>
-                    publishFIFO(fifoMessageArn, message).then(() =>
-                        load().then((r) => {
-                            setData(r);
+                onSubmit={(message) => {
+                    publishFIFO(fifoMessageArn, message)
+                        .then(() =>
+                            load().then((r) => {
+                                setData(r);
+                                setFIFOMessageArn("");
+                            })
+                        )
+                        .catch((err) => {
+                            const errorToDisplay = err.message ?? "Error fetching data"
+                            setError("It looks like the message attributes are not following AWS attribute format: (" +errorToDisplay + ")");
                             setFIFOMessageArn("");
-                        })
-                    )
-                }
+                        });
+                }}
             />
 
             <Button

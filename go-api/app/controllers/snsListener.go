@@ -33,6 +33,15 @@ func (c *SNSListenerController) CloseSNSListener(port int, sns snslistener.SNSLi
 	return "{}", nil
 }
 
+func (c *SNSListenerController) PurgeSNSListener(port int, sns snslistener.SNSListener) (string, error) {
+	err := sns.Purge(port)
+	if err != nil {
+		return "", gofraerror.NewJSON(err.Error(), http.StatusBadRequest)
+	}
+
+	return "{}", nil
+}
+
 func (c *SNSListenerController) GetRequests(port int, sns snslistener.SNSListener) (map[string]any, error) {
 	req, err := sns.GetRequests(port)
 	if err != nil {

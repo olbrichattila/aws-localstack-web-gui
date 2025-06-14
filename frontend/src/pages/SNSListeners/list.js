@@ -15,6 +15,18 @@ const SNSListPage = () => {
         return get(`/api/sns/listener/${port}/get`);
     };
 
+    const purgeMessages = (portNum) => {
+        get(`/api/sns/listener/${portNum}/purge`)
+            .then(() => {
+                getCapturedMessages(portNum)
+                    .then((data) => setData(data))
+                    .catch((err) =>
+                        setError(err.message ?? "Error fetching data")
+                    );
+            })
+            .catch((err) => setError(err.message ?? "Error fetching data"));
+    };
+
     useEffect(() => {
         getCapturedMessages(portNum)
             .then((data) => setData(data))
@@ -34,6 +46,7 @@ const SNSListPage = () => {
                         );
                 }}
             />
+            <Button label="Purge" margin={6} onClick={() => purgeMessages(portNum)} />
             {error !== "" && <div className="errorLine">{error}</div>}
 
             {data && data.requests && (
@@ -68,6 +81,11 @@ const SNSListPage = () => {
                             {
                                 field: "Message",
                                 title: "Message",
+                                clickable: false,
+                            },
+                            {
+                                field: "MessageAttributes",
+                                title: "MessageAttributes",
                                 clickable: false,
                             },
                             {

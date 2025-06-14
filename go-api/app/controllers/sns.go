@@ -10,6 +10,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"github.com/aws/aws-sdk-go-v2/service/sns/types"
 	"github.com/olbrichattila/gofra/pkg/app/gofraerror"
 )
 
@@ -23,13 +24,15 @@ type topicRequest struct {
 }
 
 type topicMessageRequest struct {
-	Message string `json:"message"`
+	Message           string                                 `json:"message"`
+	MessageAttributes map[string]types.MessageAttributeValue `json:"messageAttributes"`
 }
 
 type fifoTopicMessageRequest struct {
-	Message                string `json:"message"`
-	MessageGroupId         string `json:"messageGroupId"`
-	MessageDeduplicationId string `json:"messageDeduplicationId"`
+	Message                string                                 `json:"message"`
+	MessageGroupId         string                                 `json:"messageGroupId"`
+	MessageDeduplicationId string                                 `json:"messageDeduplicationId"`
+	MessageAttributes      map[string]types.MessageAttributeValue `json:"messageAttributes"`
 }
 
 type topicSubscribeRequest struct {
@@ -116,8 +119,9 @@ func (c *SNSController) SNSDeleteTopic(req topicRequest) (string, error) {
 
 func (c *SNSController) SNSPublishToTopicARN(topicArn string, req topicMessageRequest) (string, error) {
 	_, err := c.client.Publish(*c.ctx, &sns.PublishInput{
-		Message:  &req.Message,
-		TopicArn: aws.String(topicArn),
+		Message:           &req.Message,
+		TopicArn:          aws.String(topicArn),
+		MessageAttributes: req.MessageAttributes,
 	})
 
 	if err != nil {
@@ -133,6 +137,7 @@ func (c *SNSController) SNSPublishFIFOToTopicARN(topicArn string, req fifoTopicM
 		TopicArn:               aws.String(topicArn),
 		MessageGroupId:         &req.MessageGroupId,
 		MessageDeduplicationId: &req.MessageDeduplicationId,
+		MessageAttributes:      req.MessageAttributes,
 	})
 
 	if err != nil {

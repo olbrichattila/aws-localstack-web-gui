@@ -200,6 +200,12 @@ var Routes = []router.ControllerAction{
 		ActionName:  "GetRequests",
 	},
 	{
+		Path:        "/api/sns/listener/:port/purge",
+		RequestType: []string{http.MethodOptions, http.MethodGet},
+		Controller:  func() any { return &controller.SNSListenerController{} },
+		ActionName:  "PurgeSNSListener",
+	},
+	{
 		Path:        "/api/sns/listeners",
 		RequestType: []string{http.MethodOptions, http.MethodGet},
 		Controller:  func() any { return &controller.SNSListenerController{} },

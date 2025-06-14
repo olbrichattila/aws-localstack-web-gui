@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Button from "../button";
 import Modal from "../modal";
 import "./index.scss";
@@ -7,6 +7,7 @@ const initialSaveFIFOState = {
     messageGroupId: "",
     messageDeduplicationId: "",
     message: "",
+    messageAttributes: "",
 };
 
 const SaveFIFOBox = ({
@@ -19,17 +20,32 @@ const SaveFIFOBox = ({
     const [errors, setErrors] = useState([]);
 
     const validateAndSend = () => {
-        const vErrors = []
+        const vErrors = [];
         if (fifoState.messageGroupId === "") {
-            vErrors.push("Message Group ID is required")
+            vErrors.push("Message Group ID is required");
         }
 
         if (fifoState.messageDeduplicationId === "") {
-            vErrors.push("Message Deduplication ID is required")
+            vErrors.push("Message Deduplication ID is required");
         }
 
         if (fifoState.message === "") {
-            vErrors.push("Message is required")
+            vErrors.push("Message is required");
+        }
+        
+        let attrs = fifoState.messageAttributes != "" ? fifoState.messageAttributes :  null;
+        
+        let dispatch = { ...fifoState, messageAttributes: attrs };
+        if (attrs) {
+            try {
+                const parsed = JSON.parse(attrs);
+                dispatch.messageAttributes = parsed;
+            } catch (error) {
+                dispatch.messageAttributes = null;
+                vErrors.push(
+                    "If message attributes are provided, it must be a valid JSON"
+                );
+            }
         }
 
         if (vErrors.length > 0) {
@@ -37,7 +53,7 @@ const SaveFIFOBox = ({
             return;
         }
 
-        onSubmit(fifoState);
+        onSubmit(dispatch);
         setFifoState(initialSaveFIFOState);
         setErrors([]);
     };
@@ -80,6 +96,19 @@ const SaveFIFOBox = ({
                             setFifoState({
                                 ...fifoState,
                                 message: e.target.value,
+                            })
+                        }
+                    />
+                </label>
+                <label>
+                    Message Attributes (Optional)
+                    <textarea
+                        type="text"
+                        value={fifoState.messageAttributes}
+                        onChange={(e) =>
+                            setFifoState({
+                                ...fifoState,
+                                messageAttributes: e.target.value,
                             })
                         }
                     />
