@@ -84,8 +84,8 @@ github.com/olbrichattila/godbmigrator v1.1.30 h1:Nz7NOfcJUnV2umN3BqFrZt8TtZeBDC4
 github.com/olbrichattila/godbmigrator v1.1.30/go.mod h1:XTvCIHbdV8N398nU4lI6ZCIBS0/xjcIo18n/HOzVHwM=
 github.com/olbrichattila/godi v1.0.18 h1:JNh2Fov/8OBGkWmeOBIcBTlm4gy2Qj7n4QTrcNojG7E=
 github.com/olbrichattila/godi v1.0.18/go.mod h1:A1b6+kCJZzoujK4adFE9Yt0ACJQxm0O3ib6N0VavUwQ=
-github.com/olbrichattila/gofra v1.0.25 h1:GoBX3kvt3lVZ21LRuI1COzMYtEOMuB27AU6sQI/BJn8=
-github.com/olbrichattila/gofra v1.0.25/go.mod h1:XnJjftNpwL5+NHdQY1PktQ87tk8+h+st7FrdoFlrRbI=
+github.com/olbrichattila/gofra v1.0.26 h1:weJBymrrneW4VYdOciJAvqyAPbsvgv89HFtZFPbBIWg=
+github.com/olbrichattila/gofra v1.0.26/go.mod h1:XnJjftNpwL5+NHdQY1PktQ87tk8+h+st7FrdoFlrRbI=
 github.com/olbrichattila/gosqlbuilder v1.0.5 h1:wuZorTTvyZz3PE+JicQzukC5QBPhi7/iKbVyL0UMrMg=
 github.com/olbrichattila/gosqlbuilder v1.0.5/go.mod h1:5byeuAOdPbR2dfIAtCCQZ9BpYVZYmRFgO4m0Rv2vS78=
 github.com/onsi/ginkgo v1.16.5 h1:8xi0RTUf59SOSfEtZMvwTvXYMzG4gV23XVHOZiXNtnE=
